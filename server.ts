@@ -9,9 +9,10 @@ async function startConnection() {
     // 2. Sync
     await sequelize.sync();
     console.log("👌 All models were synchronized successfully:- DEFAULT MODE");
+    // 3. Sync + Alter Table
     // await sequelize.sync({ alter: true });
     // console.log("👌 All models were synchronized successfully:- ALTER MODE");
-    // 3. Start Server
+    // 4. Start Server
     app.listen(process.env.PORT, (err) => {
       if (err) throw err;
       console.log("✅ Server is running on port: " + process.env.PORT);

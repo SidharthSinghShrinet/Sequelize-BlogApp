@@ -5,6 +5,7 @@ import error from "./middleware/error.middleware.ts";
 import cors from "cors";
 import userRoutes from "./routes/user.routes.ts";
 import cookieParser from "cookie-parser";
+import "./model/associations.ts";
 
 configDotenv();
 
