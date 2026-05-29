@@ -4,7 +4,9 @@ import morgan from "morgan";
 import error from "./middleware/error.middleware.ts";
 import cors from "cors";
 import userRoutes from "./routes/user.routes.ts";
+import blogRoutes from "./routes/blog.routes.ts";
 import cookieParser from "cookie-parser";
+import "./model/associations.ts";
 
 configDotenv();
 
@@ -22,7 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use("/api/v1/users", userRoutes);
-
+app.use("/api/v1/blogs", blogRoutes);
 // Global Error Handler
 app.use(error);
 
