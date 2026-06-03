@@ -72,4 +72,43 @@ const getUserBlogs = expressAsyncHandler(
     ).send(res);
   },
 );
-export { createBlog, getAllBlogs, getUserBlogs };
+
+const getBlogById = expressAsyncHandler(async (req:express.Request,res:express.Response):Promise<any>=>{
+    const {id} = req.params;
+    console.log(typeof id);
+    const blog = await  blogs.findByPk(id as string,
+        {
+            include:[
+                {
+                    model:users,
+                    attributes:["id","username","email","phoneNumber"],
+                    as:"authorDetails"
+                }
+            ]
+        });
+    if(!blog) {
+        throw new ErrorHandler("Blog not found!",404);
+    }
+    return new ApiResponse(
+      200,
+      true,
+      "Blog retrieved successfully!",
+      blog,
+    ).send(res);
+})
+
+const updateBlog = expressAsyncHandler(async (req:express.Request,res:express.Response):Promise<any>=>{
+    const {id} = req.params;
+    const userId = req.user?.toJSON().id;
+    const {title,content} = req.body;
+    if (!title || !content) {
+        throw new ErrorHandler("Title and content are required to update a blog!", 404);
+    }
+    const affectedCount = await blogs.update(
+        {title,content},
+        {where:{author:userId, id:id }},
+    )
+    console.log(affectedCount);
+})
+
+export { createBlog, getAllBlogs, getUserBlogs,getBlogById, updateBlog };
