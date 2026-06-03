@@ -1,4 +1,4 @@
-import { type DataType, DataTypes } from "sequelize";
+import { DataTypes } from "sequelize";
 import sequelize from "../config/db.ts";
 
 const users = sequelize.define("users", {
@@ -29,6 +29,7 @@ const users = sequelize.define("users", {
   phoneNumber: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
     validate: {
       len: [10, 10], // Only allow values whose length is exactly 10 characters
     },

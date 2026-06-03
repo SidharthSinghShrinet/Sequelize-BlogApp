@@ -1,42 +1,46 @@
-import {type DataType, DataTypes} from "sequelize";
-import sequelize from "../config/db.ts";
+import { DataTypes } from "sequelize";
+import sequelize from "../config/db";
 
-const blog = sequelize.define("blog",{
-    id:{
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+const blogs = sequelize.define(
+  "blogs",
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true,
     },
-    title:{
-        type: DataTypes.STRING,
-        allowNull: false
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
     },
-    content:{
-        type: DataTypes.TEXT,
-        allowNull: false
+    content: {
+      type: DataTypes.TEXT,
+      allowNull: false,
     },
-    author:{
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        references:{
-            model:"users",
-            key: 'id'
-        }
+    author: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: "users",
+        key: "id",
+      },
     },
-    createdAt:{
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
+    createdAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
     },
-    updatedAt:{
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW
-    }
-},{
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
+  },
+  {
     tableName: "blogs",
     timestamps: true,
     underscored: true,
-})
+  },
+);
 
-export default blog;
+export default blogs;

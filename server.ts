@@ -9,7 +9,7 @@ async function startConnection() {
     // 2. Sync
     await sequelize.sync();
     console.log("👌 All models were synchronized successfully:- DEFAULT MODE");
-    // 3. Sync + Alter Table
+    // 3. Sync with alter: Uncomment the below lines to enable alter mode. This will automatically update the database schema to match the models without dropping tables. Use with caution in production environments.
     // await sequelize.sync({ alter: true });
     // console.log("👌 All models were synchronized successfully:- ALTER MODE");
     // 4. Start Server
