@@ -36,7 +36,7 @@ const authenticate = async (
     throw new ErrorHandler("User not foundS!", 404);
   }
 
-  console.log("Authenticated User:", user?.toJSON());
+  // console.log("Authenticated User:", user?.toJSON());
   req.user = user; // Attach the user object to the request for downstream use
   next();
 };

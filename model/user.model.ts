@@ -34,6 +34,10 @@ const users = sequelize.define("users", {
       len: [10, 10], // Only allow values whose length is exactly 10 characters
     },
   },
+  isActive:{
+    type: DataTypes.BOOLEAN,
+    defaultValue: true,
+  }
 });
 
 // Password hashing (with in built Bunjs) before saving the user to the database
