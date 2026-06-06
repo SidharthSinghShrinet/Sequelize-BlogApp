@@ -25,7 +25,7 @@ const error = (
   err: any,
   req: express.Request,
   res: express.Response,
-  next: express.NextFunction,
+  // next: express.NextFunction,
 ) => {
   console.log("FULL ERROR:", err);
 

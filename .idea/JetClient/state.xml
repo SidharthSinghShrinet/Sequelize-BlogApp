@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="JetClientState">
+    <option name="folders">
+      <list>
+        <folderState>
+          <option name="environmentGroups">
+            <list>
+              <environmentGroupState>
+                <option name="name" value="Default" />
+              </environmentGroupState>
+            </list>
+          </option>
+          <option name="id" value="2946e089-da9e-4444-82e4-ed4e88016124" />
+          <option name="name" value="BlogApp" />
+          <option name="syncProperties">
+            <synchronizationPropertiesState>
+              <option name="autoSync" value="true" />
+              <option name="folderPath" value="D:\Self Study\Sequelize\.jetclient" />
+            </synchronizationPropertiesState>
+          </option>
+        </folderState>
+      </list>
+    </option>
+    <option name="id" value="b5d620fc-941c-4b50-8dd3-9ac5f2e8238c" />
+    <option name="version" value="6" />
+  </component>
+</project>
