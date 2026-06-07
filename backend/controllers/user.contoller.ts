@@ -65,17 +65,68 @@ const loginUser = expressAsyncHandler(
       secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
-    new ApiResponse(200, true, "Login successful", { token }).send(res);
+    new ApiResponse(200, true, "Login successful", { token, user: existingUser }).send(res);
   },
 );
 
-const logoutUser = expressAsyncHandler (
+const logoutUser = expressAsyncHandler(
   async (req: express.Request, res: express.Response): Promise<any> => {
     res.clearCookie("token");
     new ApiResponse(200, true, "User logged out successfullyz").send(res);
   },
 );
 
-export { registerUser, loginUser, logoutUser };
+const getMe = expressAsyncHandler(
+  async (req: express.Request, res: express.Response): Promise<any> => {
+    new ApiResponse(200, true, "User profile retrieved successfully", req.user).send(res);
+  }
+);
 
+const updateMe = expressAsyncHandler(
+  async (req: express.Request, res: express.Response): Promise<any> => {
+    const { username, email, phoneNumber, password } = req.body;
 
+    // Find user model
+    const user = await userModel.findByPk((req.user as any).id);
+    if (!user) {
+      throw new ErrorHandler("User not found", 404);
+    }
+
+    if (username) user.setDataValue("username", username);
+    if (email) user.setDataValue("email", email);
+    if (phoneNumber) user.setDataValue("phoneNumber", phoneNumber);
+    if (password) {
+      if (password.length < 6 || password.length > 20) {
+        throw new ErrorHandler("Password must be between 6 and 20 characters", 400);
+      }
+      user.setDataValue("password", password); // will be hashed automatically by userModel.beforeUpdate
+    }
+
+    await user.save();
+
+    // Return updated user (excluding sensitive fields like password)
+    const responseUser = user.toJSON();
+    delete responseUser.password;
+
+    new ApiResponse(200, true, "User profile updated successfully", responseUser).send(res);
+  }
+);
+
+const deleteMe = expressAsyncHandler(async (req: express.Request, res: express.Response): Promise<any> => {
+  const user = await userModel.findByPk((req.user as any).id);
+  if (!user) {
+    throw new ErrorHandler("User not found", 404);
+  }
+  await userModel.destroy({
+    where: {
+      id: (req.user as any).id
+    }
+  })
+  res.clearCookie("token");
+  res.status(200).json({
+    success: true,
+    message: "User deleted successfully"
+  })
+})
+
+export { registerUser, loginUser, logoutUser, getMe, updateMe, deleteMe };

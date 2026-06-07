@@ -3,6 +3,7 @@ import ErrorHandler from "../utils/errorHandler.utils";
 import { jwtVerify } from "jose";
 import users from "../model/user.model";
 import type { Model } from "sequelize";
+import expressAsyncHandler from "express-async-handler";
 
 //@ Extend the Express Request interface to include a user property
 declare global {
@@ -13,7 +14,7 @@ declare global {
   }
 }
 
-const authenticate = async (
+const authenticate = expressAsyncHandler(async (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction,
@@ -39,6 +40,6 @@ const authenticate = async (
   // console.log("Authenticated User:", user?.toJSON());
   req.user = user; // Attach the user object to the request for downstream use
   next();
-};
+});
 
 export default authenticate;

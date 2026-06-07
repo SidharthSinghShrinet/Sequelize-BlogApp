@@ -30,9 +30,7 @@ class ApiResponse<T = unknown> {
     if (this.meta) {
       response.meta = this.meta;
     }
-    return res.status(this.statusCode).json({
-      response,
-    });
+    return res.status(this.statusCode).json(response);
   }
 }
 
