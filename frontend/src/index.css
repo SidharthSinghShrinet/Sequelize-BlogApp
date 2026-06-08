@@ -78,3 +78,28 @@
   }
 }
 
+/* Hero Carousel Antd overrides */
+.hero-carousel .slick-dots-bottom {
+  bottom: 24px !important;
+  justify-content: flex-end !important;
+  padding-right: 24px !important;
+}
+
+.hero-carousel .slick-dots li button {
+  background: #cbd5e1 !important;
+  height: 5px !important;
+  border-radius: 9999px !important;
+  opacity: 0.6 !important;
+  transition: all 0.3s ease !important;
+}
+
+.hero-carousel .slick-dots li.slick-active button {
+  background: #6366f1 !important;
+  width: 24px !important;
+  opacity: 1 !important;
+}
+
+.dark .hero-carousel .slick-dots li.slick-active button {
+  background: #818cf8 !important;
+}
+

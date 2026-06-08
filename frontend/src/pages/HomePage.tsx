@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
 import { useAllBlogs } from '../hooks/useBlogs';
+import { Carousel } from 'antd';
 
 const HomePage = () => {
     const { blogs, loading } = useAllBlogs();
@@ -102,10 +103,10 @@ const HomePage = () => {
                         </div>
                     </div>
 
-                    {/* Right Column: Hero Mockup Image + SVG squiggles */}
-                    <div className="lg:col-span-7 relative flex justify-center items-center">
+                    {/* Right Column: Hero Mockup Carousel + SVG squiggles */}
+                    <div className="lg:col-span-7 relative w-full max-w-[620px] mx-auto z-10">
                         {/* Purple star/sparks details */}
-                        <div className="absolute -top-10 left-10 text-primary opacity-60">
+                        <div className="absolute -top-10 -left-6 text-primary opacity-60 z-0">
                             <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707" />
                             </svg>
@@ -118,13 +119,106 @@ const HomePage = () => {
                             </svg>
                         </div>
 
-                        {/* Image Wrapper */}
-                        <div className="w-full max-w-[620px] rounded-3xl overflow-hidden shadow-2xl shadow-slate-200 dark:shadow-none border border-slate-100 dark:border-slate-800 z-10">
-                            <img 
-                                src="/hero_mockup.png" 
-                                alt="ShowOff Platform Dashboard" 
-                                className="w-full h-auto object-cover"
-                            />
+                        {/* Carousel Wrapper */}
+                        <div className="w-full rounded-3xl overflow-hidden shadow-2xl shadow-slate-200 dark:shadow-none border border-slate-100 dark:border-slate-800 z-10 bg-slate-50 dark:bg-slate-900">
+                            <Carousel autoplay effect="fade" speed={800} autoplaySpeed={2500} className="hero-carousel">
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_mockup.png" 
+                                        alt="ShowOff Platform Dashboard" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-primary px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Interactive Platform</span>
+                                        <h3 className="text-lg font-bold text-white">ShowOff Blog Portal</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Read and share ideas with developers, creators, and teachers.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_code_mockup.png" 
+                                        alt="VS Code Markdown Editor" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-purple-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Markdown Editor</span>
+                                        <h3 className="text-lg font-bold text-white">Syntax Highlighted Writing</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Write clean Technical Markdown articles inside a built-in development editor.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_community_mockup.png" 
+                                        alt="Community Discussions" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-amber-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Community Portal</span>
+                                        <h3 className="text-lg font-bold text-white">Engage and Discuss</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Participate in comment threads with rich reactions and developer avatars.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_search_mockup.png" 
+                                        alt="Search and Category Filters" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-sky-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Search & Filtering</span>
+                                        <h3 className="text-lg font-bold text-white">Intelligent Exploration</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Discover relevant blogs using instant search and dynamic tag categories.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_dark_mockup.png" 
+                                        alt="ShowOff Dark Mode Layout" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-indigo-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Premium Interface</span>
+                                        <h3 className="text-lg font-bold text-white">Seamless Dark Mode</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Rest your eyes with a stunning, high-contrast dark theme optimized for coding.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_mobile_mockup.png" 
+                                        alt="Mobile Responsive Design" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-rose-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Responsive Design</span>
+                                        <h3 className="text-lg font-bold text-white">Publish Anywhere</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Enjoy a fully responsive reading and writing flow on mobile screen widths.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_profile_mockup.png" 
+                                        alt="Blogger Stats Analytics Dashboard" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-emerald-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Performance Tracking</span>
+                                        <h3 className="text-lg font-bold text-white">Blogger Analytics Dashboard</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Track reading time statistics, article views, and publication traffic.</p>
+                                    </div>
+                                </div>
+                                <div className="relative group overflow-hidden">
+                                    <img 
+                                        src="/hero_collab_mockup.png" 
+                                        alt="Collaborative Editing Workspace" 
+                                        className="w-full h-auto object-cover aspect-[4/3] object-top"
+                                    />
+                                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
+                                        <span className="bg-teal-600 px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Team Collaboration</span>
+                                        <h3 className="text-lg font-bold text-white">Shared Editing Spaces</h3>
+                                        <p className="text-slate-300 text-xs font-medium">Manage publications collaboratively with other creators and co-authors.</p>
+                                    </div>
+                                </div>
+                            </Carousel>
                         </div>
                     </div>
                 </div>

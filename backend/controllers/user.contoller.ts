@@ -114,14 +114,17 @@ const updateMe = expressAsyncHandler(
 
 const deleteMe = expressAsyncHandler(async (req: express.Request, res: express.Response): Promise<any> => {
   const user = await userModel.findByPk((req.user as any).id);
+  console.log("User:", user);
   if (!user) {
     throw new ErrorHandler("User not found", 404);
   }
-  await userModel.destroy({
-    where: {
-      id: (req.user as any).id
-    }
-  })
+  await userModel.update(
+    { isActive: false },
+    {
+      where: {
+        id: (req.user as any).id
+      }
+    })
   res.clearCookie("token");
   res.status(200).json({
     success: true,
