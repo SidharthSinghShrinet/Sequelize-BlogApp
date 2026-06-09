@@ -90,9 +90,10 @@ const BlogPostPage = () => {
                     <figure className="mb-lg">
                         <img className="w-full h-[400px] object-cover rounded-xl shadow-lg" src={`https://picsum.photos/seed/post${blog.id}/1200/600`} alt={blog.title} />
                     </figure>
-                    <div className="font-body-lg space-y-md leading-relaxed text-on-surface-variant dark:text-slate-300 whitespace-pre-wrap">
-                        {blog.content}
-                    </div>
+                    <div 
+                        className="font-body-lg text-on-surface-variant dark:text-slate-300 prose dark:prose-invert max-w-none"
+                        dangerouslySetInnerHTML={{ __html: blog.content }}
+                    />
                     <div className="mt-xl flex justify-between py-sm border-y border-outline-variant dark:border-slate-800 text-slate-600 dark:text-slate-400">
                         <div className="flex gap-sm">
                             <button className="flex items-center gap-2 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined">favorite</span> 0</button>

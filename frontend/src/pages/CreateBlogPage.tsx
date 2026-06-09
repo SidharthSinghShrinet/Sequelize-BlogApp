@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
@@ -8,6 +8,23 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
+import { useEditor, EditorContent } from '@tiptap/react';
+import { BubbleMenu } from '@tiptap/react/menus';
+import StarterKit from '@tiptap/starter-kit';
+import TiptapLink from '@tiptap/extension-link';
+import TiptapImage from '@tiptap/extension-image';
+import Placeholder from '@tiptap/extension-placeholder';
+
+const toolTitles: Record<string, string> = {
+    'format_bold': 'Bold',
+    'format_italic': 'Italic',
+    'format_h1': 'Heading 1 (H1)',
+    'format_h2': 'Heading 2 (H2)',
+    'link': 'Insert Link',
+    'image': 'Insert Web Image URL',
+    'upload': 'Upload Local Image',
+    'code': 'Code Block'
+};
 
 const blogSchema = z.object({
   title: z.string().min(5, 'Title must be at least 5 characters').max(100, 'Title cannot exceed 100 characters'),
@@ -20,10 +37,8 @@ const CreateBlogPage = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
-    const textareaRef = useRef<HTMLTextAreaElement | null>(null);
     
     const [fetching, setFetching] = useState(!!id);
-
     const isEditMode = !!id;
 
     const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<BlogFormValues>({
@@ -31,59 +46,40 @@ const CreateBlogPage = () => {
         defaultValues: { title: '', content: '' }
     });
 
-    const { ref: contentRef, ...contentRegister } = register('content');
+    // Register content field programmatically for React Hook Form
+    useEffect(() => {
+        register('content');
+    }, [register]);
 
-    const handleFormat = (type: string) => {
-        const textarea = textareaRef.current;
-        if (!textarea) return;
-
-        const start = textarea.selectionStart;
-        const end = textarea.selectionEnd;
-        const text = textarea.value;
-        const selectedText = text.substring(start, end);
-
-        let formatted = '';
-        let cursorOffset = 0;
-
-        switch (type) {
-            case 'format_bold':
-                formatted = `**${selectedText || 'bold text'}**`;
-                cursorOffset = selectedText ? 0 : 2;
-                break;
-            case 'format_italic':
-                formatted = `*${selectedText || 'italic text'}*`;
-                cursorOffset = selectedText ? 0 : 1;
-                break;
-            case 'format_h1':
-                formatted = `\n# ${selectedText || 'Heading 1'}\n`;
-                break;
-            case 'format_h2':
-                formatted = `\n## ${selectedText || 'Heading 2'}\n`;
-                break;
-            case 'link':
-                formatted = `[${selectedText || 'link text'}](https://example.com)`;
-                break;
-            case 'image':
-                formatted = `![${selectedText || 'image alt'}](https://example.com/image.png)`;
-                break;
-            case 'code':
-                formatted = selectedText.includes('\n') 
-                    ? `\n\`\`\`\n${selectedText || 'code block'}\n\`\`\`\n`
-                    : `\`${selectedText || 'code'}\``;
-                break;
-            default:
-                return;
-        }
-
-        const newText = text.substring(0, start) + formatted + text.substring(end);
-        setValue('content', newText, { shouldDirty: true, shouldValidate: true });
-
-        setTimeout(() => {
-            textarea.focus();
-            const newCursorPos = start + formatted.length - cursorOffset;
-            textarea.setSelectionRange(newCursorPos, newCursorPos);
-        }, 0);
-    };
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            TiptapLink.configure({
+                openOnClick: false,
+                HTMLAttributes: {
+                    class: 'text-primary dark:text-indigo-400 underline cursor-pointer',
+                },
+            }),
+            TiptapImage.configure({
+                HTMLAttributes: {
+                    class: 'rounded-lg max-w-full my-4 shadow-md border dark:border-slate-800',
+                },
+            }),
+            Placeholder.configure({
+                placeholder: 'Write your content here...',
+            }),
+        ],
+        content: '',
+        editorProps: {
+            attributes: {
+                class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-[400px]',
+            },
+        },
+        onUpdate: ({ editor }) => {
+            const html = editor.getHTML();
+            setValue('content', html === '<p></p>' ? '' : html, { shouldDirty: true, shouldValidate: true });
+        },
+    });
 
     useEffect(() => {
         const fetchBlog = async () => {
@@ -94,6 +90,9 @@ const CreateBlogPage = () => {
                     title: response.data.title,
                     content: response.data.content
                 });
+                if (editor) {
+                    editor.commands.setContent(response.data.content);
+                }
             } catch (err) {
                 toast.error("Failed to fetch blog for edit.");
                 navigate('/blogs');
@@ -102,7 +101,107 @@ const CreateBlogPage = () => {
             }
         };
         fetchBlog();
-    }, [id, navigate, reset]);
+    }, [id, navigate, reset, editor]);
+
+    const handleFormat = (type: string) => {
+        if (!editor) return;
+
+        switch (type) {
+            case 'format_bold':
+                editor.chain().focus().toggleBold().run();
+                break;
+            case 'format_italic':
+                editor.chain().focus().toggleItalic().run();
+                break;
+            case 'format_h1':
+                editor.chain().focus().toggleHeading({ level: 1 }).run();
+                break;
+            case 'format_h2':
+                editor.chain().focus().toggleHeading({ level: 2 }).run();
+                break;
+            case 'link': {
+                if (editor.isActive('link')) {
+                    editor.chain().focus().unsetLink().run();
+                } else {
+                    const { from, to } = editor.state.selection;
+                    const isRangeEmpty = from === to;
+
+                    if (isRangeEmpty) {
+                        const url = window.prompt('Enter URL:');
+                        if (url && url.trim()) {
+                            const text = window.prompt('Enter link text:', url);
+                            if (text && text.trim()) {
+                                editor.chain().focus().insertContent(`<a href="${url}">${text}</a>`).run();
+                            }
+                        }
+                    } else {
+                        const url = window.prompt('Enter URL:');
+                        if (url && url.trim()) {
+                            editor.chain().focus().setLink({ href: url }).run();
+                        }
+                    }
+                }
+                break;
+            }
+            case 'image': {
+                const imageUrl = window.prompt('Enter image URL:');
+                if (imageUrl && imageUrl.trim()) {
+                    const altText = window.prompt('Enter image Alt Text (optional):') || '';
+                    editor.chain().focus().setImage({ src: imageUrl, alt: altText }).run();
+                }
+                break;
+            }
+            case 'upload': {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            if (typeof reader.result === 'string') {
+                                const altText = window.prompt('Enter image Alt Text (optional):') || '';
+                                editor.chain().focus().setImage({ src: reader.result, alt: altText }).run();
+                            }
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                };
+                input.click();
+                break;
+            }
+            case 'code':
+                editor.chain().focus().toggleCodeBlock().run();
+                break;
+            default:
+                break;
+        }
+    };
+
+    const isFormatActive = (type: string) => {
+        if (!editor) return false;
+        switch (type) {
+            case 'format_bold':
+                return editor.isActive('bold');
+            case 'format_italic':
+                return editor.isActive('italic');
+            case 'format_h1':
+                return editor.isActive('heading', { level: 1 });
+            case 'format_h2':
+                return editor.isActive('heading', { level: 2 });
+            case 'link':
+                return editor.isActive('link');
+            case 'image':
+                return editor.isActive('image');
+            case 'upload':
+                return false;
+            case 'code':
+                return editor.isActive('codeBlock');
+            default:
+                return false;
+        }
+    };
 
     const onSubmit = async (data: BlogFormValues) => {
         try {
@@ -157,26 +256,45 @@ const CreateBlogPage = () => {
                     </div>
                     <div className="flex flex-col rounded-lg border border-outline-variant/30 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
                         <div className="flex items-center gap-xs p-2 bg-surface-container-high dark:bg-slate-900 border-b dark:border-slate-800">
-                            {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'code'].map(tool => (
-                                <button 
-                                    type="button" 
-                                    key={tool} 
-                                    onClick={() => handleFormat(tool)}
-                                    className="editor-tool p-2 rounded flex items-center justify-center text-slate-700 dark:text-slate-300 hover:bg-surface-variant dark:hover:bg-slate-800 hover:text-primary dark:hover:text-indigo-400 transition-all"
-                                >
-                                    <span className="material-symbols-outlined text-[20px]">{tool}</span>
-                                </button>
-                            ))}
+                            {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code'].map(tool => {
+                                const active = isFormatActive(tool);
+                                return (
+                                    <button 
+                                        type="button" 
+                                        key={tool} 
+                                        onClick={() => handleFormat(tool)}
+                                        title={toolTitles[tool] || ''}
+                                        className={`p-2 rounded flex items-center justify-center transition-all ${
+                                            active 
+                                                ? 'bg-primary/20 text-primary dark:text-indigo-400' 
+                                                : 'text-slate-700 dark:text-slate-300 hover:bg-surface-variant dark:hover:bg-slate-800 hover:text-primary dark:hover:text-indigo-400'
+                                        }`}
+                                    >
+                                        <span className="material-symbols-outlined text-[20px]">{tool}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
-                        <textarea 
-                            className="w-full min-h-[400px] bg-transparent border-none outline-none focus:ring-0 p-md resize-none text-slate-800 dark:text-slate-100 placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-500" 
-                            placeholder="Write your content here..." 
-                            {...contentRegister}
-                            ref={(e) => {
-                                contentRef(e);
-                                textareaRef.current = e;
-                            }}
-                        />
+                        <div className="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-500 relative">
+                            {editor && (
+                                <BubbleMenu 
+                                    editor={editor} 
+                                    shouldShow={({ editor }) => editor.isActive('image')}
+                                    tippyOptions={{ duration: 150 }}
+                                    className="flex bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-700 rounded-lg overflow-hidden shadow-lg p-1"
+                                >
+                                    <button 
+                                        type="button"
+                                        onClick={() => editor.chain().focus().deleteSelection().run()}
+                                        className="px-2.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded transition-colors flex items-center gap-1"
+                                    >
+                                        <span className="material-symbols-outlined text-[14px]">delete</span>
+                                        Delete Image
+                                    </button>
+                                </BubbleMenu>
+                            )}
+                            <EditorContent editor={editor} />
+                        </div>
                         {errors.content && <p className="text-error text-label-sm px-md pb-md">{errors.content.message}</p>}
                     </div>
                     <div className="flex justify-end mt-auto">
