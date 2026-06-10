@@ -27,8 +27,8 @@ const toolTitles: Record<string, string> = {
 };
 
 const blogSchema = z.object({
-  title: z.string().min(5, 'Title must be at least 5 characters').max(100, 'Title cannot exceed 100 characters'),
-  content: z.string().min(20, 'Content must be at least 20 characters'),
+    title: z.string().min(5, 'Title must be at least 5 characters').max(100, 'Title cannot exceed 100 characters'),
+    content: z.string().min(20, 'Content must be at least 20 characters'),
 });
 
 type BlogFormValues = z.infer<typeof blogSchema>;
@@ -37,7 +37,7 @@ const CreateBlogPage = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const { user } = useAuth();
-    
+
     const [fetching, setFetching] = useState(!!id);
     const isEditMode = !!id;
 
@@ -151,6 +151,8 @@ const CreateBlogPage = () => {
                 }
                 break;
             }
+            //! Local Image Upload is still pending
+            //! We are going to implement the Image Upload on Cloudinary Soon
             case 'upload': {
                 const input = document.createElement('input');
                 input.type = 'file';
@@ -247,9 +249,9 @@ const CreateBlogPage = () => {
                         <div><p className="font-label-md text-slate-800 dark:text-slate-200">{user?.username || 'User'}</p><p className="text-label-sm text-on-surface-variant dark:text-slate-400">Author</p></div>
                     </div>
                     <div>
-                        <input 
-                            className={`w-full bg-transparent border-none text-headline-lg dark:text-white focus:ring-0 px-0 outline-none placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-500 ${errors.title ? 'text-error' : ''}`} 
-                            placeholder="Blog Title..." 
+                        <input
+                            className={`w-full bg-transparent border-none text-headline-lg dark:text-white focus:ring-0 px-0 outline-none placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-500 ${errors.title ? 'text-error' : ''}`}
+                            placeholder="Blog Title..."
                             {...register('title')}
                         />
                         {errors.title && <p className="text-error text-label-sm mt-1">{errors.title.message}</p>}
@@ -259,16 +261,15 @@ const CreateBlogPage = () => {
                             {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code'].map(tool => {
                                 const active = isFormatActive(tool);
                                 return (
-                                    <button 
-                                        type="button" 
-                                        key={tool} 
+                                    <button
+                                        type="button"
+                                        key={tool}
                                         onClick={() => handleFormat(tool)}
                                         title={toolTitles[tool] || ''}
-                                        className={`p-2 rounded flex items-center justify-center transition-all ${
-                                            active 
-                                                ? 'bg-primary/20 text-primary dark:text-indigo-400' 
+                                        className={`p-2 rounded flex items-center justify-center transition-all ${active
+                                                ? 'bg-primary/20 text-primary dark:text-indigo-400'
                                                 : 'text-slate-700 dark:text-slate-300 hover:bg-surface-variant dark:hover:bg-slate-800 hover:text-primary dark:hover:text-indigo-400'
-                                        }`}
+                                            }`}
                                     >
                                         <span className="material-symbols-outlined text-[20px]">{tool}</span>
                                     </button>
@@ -277,13 +278,13 @@ const CreateBlogPage = () => {
                         </div>
                         <div className="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-500 relative">
                             {editor && (
-                                <BubbleMenu 
-                                    editor={editor} 
+                                <BubbleMenu
+                                    editor={editor}
                                     shouldShow={({ editor }) => editor.isActive('image')}
                                     tippyOptions={{ duration: 150 }}
                                     className="flex bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-700 rounded-lg overflow-hidden shadow-lg p-1"
                                 >
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => editor.chain().focus().deleteSelection().run()}
                                         className="px-2.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded transition-colors flex items-center gap-1"
@@ -299,7 +300,7 @@ const CreateBlogPage = () => {
                     </div>
                     <div className="flex justify-end mt-auto">
                         <button type="submit" disabled={isSubmitting} className="bg-primary text-on-primary px-8 py-3 rounded-lg flex items-center gap-2 shadow-lg disabled:opacity-50 hover:brightness-110 transition-all">
-                            <span className="material-symbols-outlined text-[20px]">{isEditMode ? 'save' : 'publish'}</span> 
+                            <span className="material-symbols-outlined text-[20px]">{isEditMode ? 'save' : 'publish'}</span>
                             {isSubmitting ? (isEditMode ? 'Saving...' : 'Publishing...') : (isEditMode ? 'Save Changes' : 'Publish Blog')}
                         </button>
                     </div>
