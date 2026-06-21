@@ -1,5 +1,11 @@
+import { configDotenv } from "dotenv";
+configDotenv();
+
 import app from "./app.ts";
 import sequelize from "./config/db.ts";
+import "./model/media.model.ts";
+
+import { initCronJobs } from "./config/cron.ts";
 
 async function startConnection() {
   try {
@@ -16,6 +22,7 @@ async function startConnection() {
     app.listen(process.env.PORT, (err) => {
       if (err) throw err;
       console.log("✅ Server is running on port: " + process.env.PORT);
+      initCronJobs();
     });
   } catch (e) {
     console.error("Error occurred while starting the connection:", e);

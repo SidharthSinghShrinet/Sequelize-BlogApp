@@ -17,6 +17,10 @@ const blogs = sequelize.define(
             type: DataTypes.TEXT,
             allowNull: false,
         },
+        thumbnail: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         author: {
             type: DataTypes.INTEGER,
             allowNull: false,
@@ -24,6 +28,17 @@ const blogs = sequelize.define(
                 model: "users",
                 key: "id",
             },
+        },
+        projectId: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            field: "project_id",
+            references: {
+                model: "projects",
+                key: "id",
+            },
+            onDelete: "SET NULL",
+            onUpdate: "CASCADE"
         },
         createdAt: {
             type: DataTypes.DATE,
