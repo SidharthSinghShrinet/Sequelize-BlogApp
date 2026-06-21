@@ -76,15 +76,16 @@ export default {
         "xl": "32px"
       },
       "fontFamily": {
-        "body-lg": ["Hanken Grotesk"],
-        "body-md": ["Hanken Grotesk"],
-        "display-lg": ["Hanken Grotesk"],
-        "title-lg": ["Hanken Grotesk"],
-        "headline-md": ["Hanken Grotesk"],
-        "headline-lg": ["Hanken Grotesk"],
-        "headline-xl": ["Hanken Grotesk"],
-        "label-md": ["Hanken Grotesk"],
-        "label-sm": ["Geist"]
+        "sans": ["Geist", "Inter", "system-ui", "-apple-system", "sans-serif"],
+        "body-lg": ["Geist", "Inter", "sans-serif"],
+        "body-md": ["Geist", "Inter", "sans-serif"],
+        "display-lg": ["Geist", "Inter", "sans-serif"],
+        "title-lg": ["Geist", "Inter", "sans-serif"],
+        "headline-md": ["Geist", "Inter", "sans-serif"],
+        "headline-lg": ["Geist", "Inter", "sans-serif"],
+        "headline-xl": ["Geist", "Inter", "sans-serif"],
+        "label-md": ["Geist", "Inter", "sans-serif"],
+        "label-sm": ["Geist", "Inter", "sans-serif"]
       },
     },
   },

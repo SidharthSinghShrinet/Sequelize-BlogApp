@@ -57,6 +57,11 @@ export const UserApi = {
 };
 
 export const BlogApi = {
+    upload: (formdata: FormData) => apiClient.post('/blogs/upload', formdata, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    }),
     createBlog: (data: any) => apiClient.post('/blogs/create-blog', data),
     getAllBlogs: () => apiClient.get('/blogs/get-all-blogs'),
     getUserBlogs: () => apiClient.get('/blogs/get-user-blogs'),
@@ -65,4 +70,26 @@ export const BlogApi = {
     deleteBlog: (id: string | number) => apiClient.delete(`/blogs/delete-blog/${id}`),
     deleteAllBlogs: () => apiClient.delete('/blogs/delete-all'),
     getDeletedBlogs: () => apiClient.get('/blogs/deleted-blogs'),
+    testAiPrompt: (data: { title: string }) => apiClient.post('/blogs/test-ai-prompt', data),
+    getAnalytics: () => apiClient.get('/blogs/analytics'),
+};
+
+export const ProjectApi = {
+    createProject: (data: FormData) => apiClient.post('/projects', data, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    }),
+    getAllProjects: () => apiClient.get('/projects'),
+    getUserProjects: () => apiClient.get('/projects/user'),
+    getProjectById: (id: string | number) => apiClient.get(`/projects/${id}`),
+    updateProject: (id: string | number, data: FormData) => apiClient.put(`/projects/${id}`, data, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    }),
+    deleteProject: (id: string | number) => apiClient.delete(`/projects/${id}`),
+    fetchGithubReadme: (githubUrl: string) => apiClient.get('/projects/github-readme', {
+        params: { githubUrl }
+    }),
 };

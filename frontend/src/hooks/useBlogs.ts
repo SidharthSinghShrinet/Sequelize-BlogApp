@@ -47,3 +47,200 @@ export const useBlog = (id: string | undefined) => {
 
     return { blog, loading, error };
 };
+
+export const generateSvgThumbnail = (title: string, content: string) => {
+    // Clean up text
+    const cleanTitle = title.replace(/["<>]/g, '').substring(0, 60);
+    const cleanSummary = content.replace(/<[^>]*>?/gm, '').replace(/["<>]/g, '').substring(0, 100) + '...';
+    
+    // Choose a beautiful gradient based on title characters
+    const gradients = [
+        { from: '#6366f1', to: '#a855f7' }, // Indigo to Purple
+        { from: '#3b82f6', to: '#06b6d4' }, // Blue to Cyan
+        { from: '#ec4899', to: '#f43f5e' }, // Pink to Rose
+        { from: '#10b981', to: '#3b82f6' }  // Emerald to Blue
+    ];
+    const hash = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const gradient = gradients[hash % gradients.length];
+
+    // Wrap title to lines
+    const words = cleanTitle.split(' ');
+    let line1 = '';
+    let line2 = '';
+    for (let i = 0; i < words.length; i++) {
+        if ((line1 + words[i]).length < 24) {
+            line1 += (line1 ? ' ' : '') + words[i];
+        } else if ((line2 + words[i]).length < 24) {
+            line2 += (line2 ? ' ' : '') + words[i];
+        } else {
+            line2 += '...';
+            break;
+        }
+    }
+
+    // Wrap summary to lines
+    const summaryWords = cleanSummary.split(' ');
+    let sLine1 = '';
+    let sLine2 = '';
+    for (let i = 0; i < summaryWords.length; i++) {
+        if ((sLine1 + summaryWords[i]).length < 45) {
+            sLine1 += (sLine1 ? ' ' : '') + summaryWords[i];
+        } else if ((sLine2 + summaryWords[i]).length < 45) {
+            sLine2 += (sLine2 ? ' ' : '') + summaryWords[i];
+        } else {
+            sLine2 += '...';
+            break;
+        }
+    }
+
+    const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+        <defs>
+            <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:${gradient.from};stop-opacity:1" />
+                <stop offset="100%" style="stop-color:${gradient.to};stop-opacity:1" />
+            </linearGradient>
+            <style>
+                .title { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 44px; font-weight: 800; fill: #ffffff; }
+                .summary { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 22px; fill: rgba(255, 255, 255, 0.85); font-weight: 500; }
+                .tag { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; font-weight: 800; fill: rgba(255, 255, 255, 0.6); letter-spacing: 2px; }
+                .decor { fill: rgba(255, 255, 255, 0.08); font-family: monospace; font-weight: 900; }
+            </style>
+        </defs>
+        <!-- Background -->
+        <rect width="800" height="450" fill="url(#grad)" />
+        
+        <!-- Decorative Background Symbols -->
+        <text x="630" y="390" font-size="200" class="decor">&lt;/&gt;</text>
+        <text x="50" y="160" font-size="120" class="decor">{ }</text>
+        
+        <!-- Header Tag -->
+        <text x="80" y="90" class="tag">SHOWOFF PUBLICATION</text>
+        
+        <!-- Title Lines -->
+        <text x="80" y="165" class="title">${line1}</text>
+        ${line2 ? `<text x="80" y="225" class="title">${line2}</text>` : ''}
+        
+        <!-- Line Divider -->
+        <line x1="80" y1="270" x2="220" y2="270" stroke="rgba(255,255,255,0.4)" stroke-width="5" stroke-linecap="round" />
+        
+        <!-- Summary Lines -->
+        <text x="80" y="325" class="summary">${sLine1}</text>
+        ${sLine2 ? `<text x="80" y="365" class="summary">${sLine2}</text>` : ''}
+    </svg>
+    `.trim();
+
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svgString)}`;
+};
+
+export const getBlogImageUrl = (content: string, title: string, id: number, thumbnail?: string) => {
+    // 1. If a dedicated cover thumbnail exists, use it
+    if (thumbnail) {
+        return thumbnail;
+    }
+    // 2. Search for first <img> tag src using regex
+    const imgRegex = /<img[^>]+src="([^">]+)"/i;
+    const match = content.match(imgRegex);
+    if (match && match[1]) {
+        return match[1];
+    }
+    // 3. Generate dynamic thumbnail based on title and content
+    return generateSvgThumbnail(title, content);
+};
+
+export const calculateReadingTime = (htmlContent: string): number => {
+    if (!htmlContent) return 1;
+    // Strip HTML tags to get pure text content
+    const text = htmlContent.replace(/<[^>]*>/g, ' ');
+    // Split by spaces to count words
+    const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+    const wordCount = words.length;
+    // Estimate reading time assuming 200 WPM (minimum of 1 minute)
+    const wordsPerMinute = 200;
+    return Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+};
+
+export interface CategoryInfo {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    color: string;
+    keywords: string[];
+}
+
+export const CATEGORIES: CategoryInfo[] = [
+    {
+        id: 'frontend',
+        name: 'Frontend Development',
+        description: 'User interfaces, React, CSS styling, components, and client-side experiences.',
+        icon: 'devices',
+        color: 'from-blue-500 to-cyan-500',
+        keywords: ['react', 'vue', 'angular', 'svelte', 'css', 'html', 'tailwind', 'flexbox', 'grid', 'frontend', 'ui', 'ux', 'components', 'responsive', 'dom', 'browser', 'javascript', 'typescript', 'hooks', 'state', 'usestate', 'useeffect']
+    },
+    {
+        id: 'backend',
+        name: 'Backend Services',
+        description: 'Server logic, APIs, Bun & Node.js, authentication, and router controllers.',
+        icon: 'terminal',
+        color: 'from-indigo-500 to-purple-500',
+        keywords: ['node', 'bun', 'express', 'koa', 'nest', 'api', 'backend', 'rest', 'graphql', 'router', 'controller', 'middleware', 'auth', 'jwt', 'session', 'token', 'server', 'http', 'websocket']
+    },
+    {
+        id: 'databases',
+        name: 'Database Architecture',
+        description: 'Relational MySQL database models, Sequelize query execution, and schemas.',
+        icon: 'database',
+        color: 'from-emerald-500 to-teal-500',
+        keywords: ['sequelize', 'mysql', 'postgres', 'postgresql', 'sqlite', 'mongodb', 'redis', 'nosql', 'sql', 'query', 'orm', 'migration', 'database', 'db', 'schema', 'transaction', 'indexing']
+    },
+    {
+        id: 'devops',
+        name: 'DevOps & Cloud',
+        description: 'Cloudinary storage, automated cleanup cron jobs, and environment config.',
+        icon: 'cloud_sync',
+        color: 'from-amber-500 to-orange-500',
+        keywords: ['cloudinary', 'cron', 'docker', 'kubernetes', 'aws', 'gcp', 'azure', 'deploy', 'deployment', 'ci/cd', 'github actions', 'upload', 'purged', 'cleanup', 'automation', 'pipeline']
+    },
+    {
+        id: 'ai',
+        name: 'AI & Automation',
+        description: 'Automatic cover design synthesis, prompt generation pipelines, and Flux models.',
+        icon: 'psychology',
+        color: 'from-rose-500 to-pink-500',
+        keywords: ['ai', 'llm', 'mistral', 'pollinations', 'flux', 'prompt', 'image generation', 'cover art', 'artwork', 'gpt', 'openai', 'diffusion', 'generative', 'brief', 'artist']
+    },
+    {
+        id: 'general',
+        name: 'General Programming',
+        description: 'Software design patterns, developer lifestyle, career insights, and algorithms.',
+        icon: 'code',
+        color: 'from-slate-500 to-slate-700',
+        keywords: []
+    }
+];
+
+export const getCategoryForBlog = (title: string, content: string): string => {
+    const combinedText = `${title} ${content}`.toLowerCase();
+    
+    let bestCategory = 'general';
+    let maxMatches = 0;
+    
+    for (const category of CATEGORIES) {
+        if (category.id === 'general') continue;
+        
+        let matches = 0;
+        for (const keyword of category.keywords) {
+            if (combinedText.includes(keyword)) {
+                matches++;
+            }
+        }
+        
+        if (matches > maxMatches) {
+            maxMatches = matches;
+            bestCategory = category.id;
+        }
+    }
+    
+    return bestCategory;
+};

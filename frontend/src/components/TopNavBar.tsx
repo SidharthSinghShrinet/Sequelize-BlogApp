@@ -67,8 +67,36 @@ const TopNavBar = () => {
                             </>
                         )}
                     </NavLink>
-                    <a href="#" className="text-[15px] font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">Categories</a>
-                    <a href="#" className="text-[15px] font-semibold text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white">About</a>
+                    <NavLink 
+                        to="/projects" 
+                        className={({ isActive }) => `relative flex items-center h-full text-[15px] transition-all font-semibold ${
+                            isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                        }`}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <span>Project Hub</span>
+                                {isActive && (
+                                    <span className="absolute bottom-4 left-1/2 -translate-x-1/2 w-6 h-[3px] bg-primary rounded-full animate-[scaleX_0.2s_ease-out]" />
+                                )}
+                            </>
+                        )}
+                    </NavLink>
+                    <NavLink 
+                        to="/about" 
+                        className={({ isActive }) => `relative flex items-center h-full text-[15px] transition-all font-semibold ${
+                            isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                        }`}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <span>About</span>
+                                {isActive && (
+                                    <span className="absolute bottom-4 left-1/2 -translate-x-1/2 w-6 h-[3px] bg-primary rounded-full animate-[scaleX_0.2s_ease-out]" />
+                                )}
+                            </>
+                        )}
+                    </NavLink>
                 </nav>
 
                 {/* Right side Actions */}

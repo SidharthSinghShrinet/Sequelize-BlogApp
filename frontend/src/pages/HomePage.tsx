@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
-import { useAllBlogs } from '../hooks/useBlogs';
+import { useAllBlogs, getBlogImageUrl, calculateReadingTime } from '../hooks/useBlogs';
 import { Carousel } from 'antd';
 
 const HomePage = () => {
@@ -49,14 +49,10 @@ const HomePage = () => {
             tag: i === 0 ? 'TYPESCRIPT' : i === 1 ? 'TEACHING' : 'DEV-OPS',
             title: b.title,
             content: b.content.replace(/<[^>]*>?/gm, '').substring(0, 80) + '...',
-            image: i === 0 
-                ? 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80'
-                : i === 1 
-                ? 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80'
-                : 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&auto=format&fit=crop&q=80',
+            image: getBlogImageUrl(b.content, b.title, b.id, b.thumbnail),
             author: b.authorDetails?.username || 'Writer',
             date: new Date(b.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            readTime: '5 min read'
+            readTime: `${calculateReadingTime(b.content)} min read`
         }))
         : defaultFeaturedBlogs;
 

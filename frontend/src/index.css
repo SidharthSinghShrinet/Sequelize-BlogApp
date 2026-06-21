@@ -4,7 +4,7 @@
 
 @layer base {
   body {
-    font-family: 'Hanken Grotesk', sans-serif;
+    font-family: 'Geist', 'Inter', sans-serif;
     @apply transition-colors duration-300;
   }
   
@@ -49,27 +49,28 @@
   }
   
   .input-field {
-    background-color: #ffffff;
-    border: 1px solid #c7c4d7;
-    transition: all 0.2s;
-    @apply text-slate-800;
+    background-color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(226, 232, 240, 0.85);
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Geist', 'Inter', sans-serif;
+    @apply text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 font-medium shadow-sm hover:border-slate-300 focus:bg-white;
   }
   
   .dark .input-field {
-    background-color: #0b1329;
-    border: 1px solid #1e293b;
-    @apply text-slate-100;
+    background-color: rgba(15, 23, 42, 0.55);
+    border: 1px solid rgba(51, 65, 85, 0.65);
+    @apply hover:border-slate-600 focus:bg-slate-950;
   }
   
   .input-field:focus {
     border-color: #6366f1;
-    box-shadow: 0 0 0 1px #6366f1;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     outline: none;
   }
 
   .dark .input-field:focus {
     border-color: #818cf8;
-    box-shadow: 0 0 0 1px #818cf8;
+    box-shadow: 0 0 0 4px rgba(129, 140, 248, 0.2), 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   }
   
   /* Coder style tags */

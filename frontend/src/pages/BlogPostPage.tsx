@@ -4,7 +4,7 @@ import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
 import { BlogApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
-import { useBlog } from '../hooks/useBlogs';
+import { useBlog, getBlogImageUrl, calculateReadingTime } from '../hooks/useBlogs';
 import toast from 'react-hot-toast';
 
 const BlogPostPage = () => {
@@ -84,14 +84,14 @@ const BlogPostPage = () => {
                         </div>
                         <div>
                             <div className="font-label-md font-semibold text-slate-800 dark:text-slate-200">{blog.authorDetails?.username}</div>
-                            <div className="text-label-sm text-on-surface-variant dark:text-slate-400">{new Date(blog.createdAt).toLocaleDateString()} • 5 min read</div>
+                            <div className="text-label-sm text-on-surface-variant dark:text-slate-400">{new Date(blog.createdAt).toLocaleDateString()} • {calculateReadingTime(blog.content)} min read</div>
                         </div>
                     </div>
                     <figure className="mb-lg">
-                        <img className="w-full h-[400px] object-cover rounded-xl shadow-lg" src={`https://picsum.photos/seed/post${blog.id}/1200/600`} alt={blog.title} />
+                        <img className="w-full h-[400px] object-cover rounded-xl shadow-lg" src={getBlogImageUrl(blog.content, blog.title, blog.id, blog.thumbnail)} alt={blog.title} />
                     </figure>
                     <div 
-                        className="font-body-lg text-on-surface-variant dark:text-slate-300 prose dark:prose-invert max-w-none"
+                        className="font-body-lg text-slate-800 dark:text-slate-250 prose dark:prose-invert max-w-none leading-relaxed font-normal"
                         dangerouslySetInnerHTML={{ __html: blog.content }}
                     />
                     <div className="mt-xl flex justify-between py-sm border-y border-outline-variant dark:border-slate-800 text-slate-600 dark:text-slate-400">

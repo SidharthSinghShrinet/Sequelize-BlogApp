@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
-import { useAllBlogs } from '../hooks/useBlogs';
+import { useAllBlogs, getBlogImageUrl } from '../hooks/useBlogs';
 
 const AllBlogsPage = () => {
     const { blogs, loading } = useAllBlogs();
@@ -28,7 +28,7 @@ const AllBlogsPage = () => {
                             <input 
                                 type="text" 
                                 placeholder="Search articles..." 
-                                className="w-full bg-surface-variant dark:bg-slate-950 text-on-surface dark:text-slate-100 rounded-lg pl-10 pr-4 py-2 outline-none border-none focus:ring-1 focus:ring-primary transition-all"
+                                className="input-field w-full rounded-lg pl-10 pr-4 py-2 outline-none"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -44,7 +44,7 @@ const AllBlogsPage = () => {
                             {filteredBlogs.map((post: any) => (
                                 <Link to={`/post/${post.id}`} key={post.id} className="bg-surface-container-lowest dark:bg-slate-900 rounded-xl overflow-hidden border border-outline-variant/30 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-primary/30 dark:hover:border-primary/50 transition-all group flex flex-col">
                                     <div className="h-48 overflow-hidden relative">
-                                        <img src={`https://picsum.photos/seed/post${post.id}/800/400`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={post.title} />
+                                        <img src={getBlogImageUrl(post.content, post.title, post.id, post.thumbnail)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={post.title} />
                                         <div className="absolute top-sm left-sm px-2 py-1 bg-surface/80 dark:bg-slate-950/80 backdrop-blur-md rounded font-label-sm text-primary">Article</div>
                                     </div>
                                     <div className="p-sm flex flex-col flex-grow gap-sm">

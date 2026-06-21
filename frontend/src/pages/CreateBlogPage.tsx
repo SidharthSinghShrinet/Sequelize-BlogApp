@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
-import { BlogApi, ApiError } from '../api/client';
+import { BlogApi, ProjectApi, ApiError } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -29,6 +29,7 @@ const toolTitles: Record<string, string> = {
 const blogSchema = z.object({
     title: z.string().min(5, 'Title must be at least 5 characters').max(100, 'Title cannot exceed 100 characters'),
     content: z.string().min(20, 'Content must be at least 20 characters'),
+    projectId: z.string().optional().nullable(),
 });
 
 type BlogFormValues = z.infer<typeof blogSchema>;
@@ -40,11 +41,26 @@ const CreateBlogPage = () => {
 
     const [fetching, setFetching] = useState(!!id);
     const isEditMode = !!id;
+    const [userProjects, setUserProjects] = useState<any[]>([]);
 
     const { register, handleSubmit, reset, setValue, formState: { errors, isSubmitting } } = useForm<BlogFormValues>({
         resolver: zodResolver(blogSchema),
-        defaultValues: { title: '', content: '' }
+        defaultValues: { title: '', content: '', projectId: '' }
     });
+
+    useEffect(() => {
+        const fetchUserProjects = async () => {
+            try {
+                const response: any = await ProjectApi.getUserProjects();
+                setUserProjects(response.data);
+            } catch (err) {
+                console.error("Failed to fetch user projects:", err);
+            }
+        };
+        if (user) {
+            fetchUserProjects();
+        }
+    }, [user]);
 
     // Register content field programmatically for React Hook Form
     useEffect(() => {
@@ -88,7 +104,8 @@ const CreateBlogPage = () => {
                 const response: any = await BlogApi.getBlogById(id);
                 reset({
                     title: response.data.title,
-                    content: response.data.content
+                    content: response.data.content,
+                    projectId: response.data.projectId ? String(response.data.projectId) : ''
                 });
                 if (editor) {
                     editor.commands.setContent(response.data.content);
@@ -151,23 +168,37 @@ const CreateBlogPage = () => {
                 }
                 break;
             }
-            //! Local Image Upload is still pending
-            //! We are going to implement the Image Upload on Cloudinary Soon
             case 'upload': {
-                const input = document.createElement('input');
+                const input = document.createElement("input");
                 input.type = 'file';
                 input.accept = 'image/*';
-                input.onchange = (e) => {
+                input.onchange = async (e) => {
                     const file = (e.target as HTMLInputElement).files?.[0];
                     if (file) {
-                        const reader = new FileReader();
-                        reader.onload = () => {
-                            if (typeof reader.result === 'string') {
-                                const altText = window.prompt('Enter image Alt Text (optional):') || '';
-                                editor.chain().focus().setImage({ src: reader.result, alt: altText }).run();
-                            }
-                        };
-                        reader.readAsDataURL(file);
+                        const loadingToast = toast.loading('Uploading Image...');
+                        try {
+                            // 1. Create a FormData Payload
+                            const formData = new FormData();
+                            formData.append('image', file);
+
+                            // 2. POST to your Backend API
+                            const response: any = await BlogApi.upload(formData);
+
+                            // 3. Extract the secure URL
+                            const imageUrl = response.data.secure_url;
+
+                            // 4. Prompt user for Alt text (optional)
+                            const altText = window.prompt('Enter image Alt Text (optional):') || '';
+
+                            // 5. Insert the image link into TipTap
+                            editor.chain().focus().setImage({ src: imageUrl, alt: altText }).run();
+
+                            toast.success('Image uploaded successfully!', { id: loadingToast });
+
+                        } catch (error: any) {
+                            console.log(error);
+                            toast.error(error?.message || "Failed to Upload Image!", { id: loadingToast });
+                        }
                     }
                 };
                 input.click();
@@ -207,12 +238,17 @@ const CreateBlogPage = () => {
 
     const onSubmit = async (data: BlogFormValues) => {
         try {
+            const payload = {
+                title: data.title,
+                content: data.content,
+                projectId: data.projectId ? Number(data.projectId) : null
+            };
             if (isEditMode) {
-                await BlogApi.updateBlog(id, data);
+                await BlogApi.updateBlog(id, payload);
                 toast.success('Blog updated successfully!');
                 navigate(`/post/${id}`);
             } else {
-                const response: any = await BlogApi.createBlog(data);
+                const response: any = await BlogApi.createBlog(payload);
                 toast.success('Blog published successfully!');
                 navigate(`/post/${response.data.id}`);
             }
@@ -256,6 +292,28 @@ const CreateBlogPage = () => {
                         />
                         {errors.title && <p className="text-error text-label-sm mt-1">{errors.title.message}</p>}
                     </div>
+
+                    {/* Project Link Dropdown Selector */}
+                    {userProjects.length > 0 && (
+                        <div className="flex flex-col gap-1.5 pb-2">
+                            <label htmlFor="blog-project" className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono">
+                                Associate with Showcase Project (Optional)
+                            </label>
+                            <select 
+                                id="blog-project"
+                                {...register('projectId')}
+                                className="input-field rounded-xl px-3 py-2.5 outline-none text-xs font-semibold max-w-sm"
+                            >
+                                <option value="">-- No Project Link (Independent Article) --</option>
+                                {userProjects.map((proj: any) => (
+                                    <option key={proj.id} value={proj.id}>
+                                        {proj.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
                     <div className="flex flex-col rounded-lg border border-outline-variant/30 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
                         <div className="flex items-center gap-xs p-2 bg-surface-container-high dark:bg-slate-900 border-b dark:border-slate-800">
                             {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code'].map(tool => {
@@ -267,8 +325,8 @@ const CreateBlogPage = () => {
                                         onClick={() => handleFormat(tool)}
                                         title={toolTitles[tool] || ''}
                                         className={`p-2 rounded flex items-center justify-center transition-all ${active
-                                                ? 'bg-primary/20 text-primary dark:text-indigo-400'
-                                                : 'text-slate-700 dark:text-slate-300 hover:bg-surface-variant dark:hover:bg-slate-800 hover:text-primary dark:hover:text-indigo-400'
+                                            ? 'bg-primary/20 text-primary dark:text-indigo-400'
+                                            : 'text-slate-700 dark:text-slate-300 hover:bg-surface-variant dark:hover:bg-slate-800 hover:text-primary dark:hover:text-indigo-400'
                                             }`}
                                     >
                                         <span className="material-symbols-outlined text-[20px]">{tool}</span>
@@ -281,7 +339,6 @@ const CreateBlogPage = () => {
                                 <BubbleMenu
                                     editor={editor}
                                     shouldShow={({ editor }) => editor.isActive('image')}
-                                    tippyOptions={{ duration: 150 }}
                                     className="flex bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-700 rounded-lg overflow-hidden shadow-lg p-1"
                                 >
                                     <button

@@ -9,6 +9,11 @@ import CreateBlogPage from './pages/CreateBlogPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
+import AboutPage from './pages/AboutPage';
+import CategoriesPage from './pages/CategoriesPage';
+import ProjectsPage from './pages/ProjectsPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
+import CreateProjectPage from './pages/CreateProjectPage';
 
 function App() {
   return (
@@ -24,6 +29,12 @@ function App() {
           <Route path="/create" element={<ProtectedRoute><CreateBlogPage /></ProtectedRoute>} />
           <Route path="/edit/:id" element={<ProtectedRoute><CreateBlogPage /></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/categories" element={<CategoriesPage />} />
+          <Route path="/projects" element={<ProjectsPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="/projects/create" element={<ProtectedRoute><CreateProjectPage /></ProtectedRoute>} />
+          <Route path="/projects/edit/:id" element={<ProtectedRoute><CreateProjectPage /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
