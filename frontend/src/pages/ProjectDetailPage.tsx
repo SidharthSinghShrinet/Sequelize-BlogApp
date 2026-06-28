@@ -49,6 +49,8 @@ const ProjectDetailPage = () => {
         }
     };
 
+    console.log(project)
+
     if (loading) {
         return (
             <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-300">
@@ -75,9 +77,9 @@ const ProjectDetailPage = () => {
 
             {/* Content Container */}
             <main className="flex-grow max-w-container-max w-full mx-auto px-gutter py-lg flex flex-col gap-6 md:gap-8">
-                
+
                 {/* Back Nav Link */}
-                <Link 
+                <Link
                     to="/projects"
                     className="flex items-center gap-1 text-[11px] font-extrabold text-slate-400 hover:text-slate-900 dark:hover:text-white font-mono uppercase tracking-wider"
                 >
@@ -87,16 +89,16 @@ const ProjectDetailPage = () => {
 
                 {/* Grid Split Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    
+
                     {/* Left Column - README Project Profile (Span 7) */}
                     <div className="lg:col-span-7 flex flex-col gap-6 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-3xl p-6 md:p-8 shadow-sm">
-                        
+
                         {/* Thumbnail Cover Banner */}
                         <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-950 border border-slate-50 dark:border-slate-800 relative">
                             {project.thumbnail ? (
-                                <img 
-                                    src={project.thumbnail} 
-                                    alt={project.title} 
+                                <img
+                                    src={project.thumbnail}
+                                    alt={project.title}
                                     className="w-full h-full object-cover"
                                 />
                             ) : (
@@ -121,7 +123,7 @@ const ProjectDetailPage = () => {
                             <h4 className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest font-mono">Tech Stack</h4>
                             <div className="flex flex-wrap gap-1.5">
                                 {tags.map((tag: string, idx: number) => (
-                                    <span 
+                                    <span
                                         key={idx}
                                         className="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-800 rounded-md px-2.5 py-1 text-[10px] font-bold"
                                     >
@@ -134,7 +136,7 @@ const ProjectDetailPage = () => {
                         {/* Description markup */}
                         <div className="flex flex-col gap-2 mt-2">
                             <h4 className="text-[10px] font-bold text-slate-450 dark:text-slate-500 uppercase tracking-widest font-mono">Project Profile</h4>
-                            <div 
+                            <div
                                 className="text-slate-800 dark:text-slate-200 prose dark:prose-invert max-w-none text-sm leading-relaxed font-normal"
                                 dangerouslySetInnerHTML={{ __html: marked.parse(project.description || '') }}
                             />
@@ -142,13 +144,13 @@ const ProjectDetailPage = () => {
 
                         {/* Footer Links & Owner Control panel */}
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-t border-slate-50 dark:border-slate-800/40 pt-6 mt-4 gap-4">
-                            
+
                             {/* Showcase Links */}
                             <div className="flex items-center gap-3">
                                 {project.githubUrl && (
-                                    <a 
-                                        href={project.githubUrl} 
-                                        target="_blank" 
+                                    <a
+                                        href={project.githubUrl}
+                                        target="_blank"
                                         rel="noreferrer"
                                         className="bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-xs font-bold px-4 py-2 rounded-xl shadow-md hover:brightness-105 active:scale-[0.98] transition-all flex items-center gap-1.5"
                                     >
@@ -157,9 +159,9 @@ const ProjectDetailPage = () => {
                                     </a>
                                 )}
                                 {project.liveUrl && (
-                                    <a 
-                                        href={project.liveUrl} 
-                                        target="_blank" 
+                                    <a
+                                        href={project.liveUrl}
+                                        target="_blank"
                                         rel="noreferrer"
                                         className="bg-slate-100 text-slate-800 hover:bg-slate-200/80 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750 text-xs font-bold px-4 py-2 rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center gap-1.5 border border-slate-200/20 dark:border-slate-700"
                                     >
@@ -172,14 +174,14 @@ const ProjectDetailPage = () => {
                             {/* Owner editing actions */}
                             {isOwner && (
                                 <div className="flex items-center gap-2 self-end sm:self-center">
-                                    <Link 
+                                    <Link
                                         to={`/projects/edit/${project.id}`}
                                         className="bg-slate-100 hover:bg-slate-200/80 text-slate-700 dark:bg-slate-800 dark:hover:bg-slate-750 dark:text-slate-200 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 transition-all border border-slate-200/10 dark:border-slate-700"
                                     >
                                         <span className="material-symbols-outlined text-sm">edit</span>
                                         Edit
                                     </Link>
-                                    <button 
+                                    <button
                                         onClick={handleDelete}
                                         disabled={deleting}
                                         className="bg-rose-50 hover:bg-rose-100/80 text-rose-600 dark:bg-rose-950/20 dark:hover:bg-rose-900/10 dark:text-rose-400 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 transition-all border border-rose-200/25 dark:border-rose-900/25 disabled:opacity-50"

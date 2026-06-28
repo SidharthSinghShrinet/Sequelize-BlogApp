@@ -3,11 +3,11 @@ import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
 import CategoryMesh from '../components/CategoryMesh';
 import CategoryBlogsList from '../components/CategoryBlogsList';
-import { useAllBlogs } from '../hooks/useBlogs';
+import { useCategoryCounts } from '../hooks/useBlogs';
 import type { CategoryInfo } from '../hooks/useBlogs';
 
 const CategoriesPage = () => {
-    const { blogs, loading } = useAllBlogs();
+    const { counts, loading } = useCategoryCounts();
     const [selectedCategory, setSelectedCategory] = useState<CategoryInfo | null>(null);
 
     return (
@@ -44,18 +44,19 @@ const CategoriesPage = () => {
                 ) : (
                     <div className="w-full flex flex-col gap-6 animate-[fadeIn_0.5s_ease-out]">
                         <CategoryMesh 
-                            blogs={blogs} 
+                            counts={counts} 
                             onSelectCategory={(category) => setSelectedCategory(category)} 
                         />
                     </div>
                 )}
 
                 {/* Slide-over Blogs List Drawer */}
-                <CategoryBlogsList 
-                    category={selectedCategory}
-                    blogs={blogs}
-                    onClose={() => setSelectedCategory(null)}
-                />
+                {selectedCategory && (
+                    <CategoryBlogsList 
+                        category={selectedCategory}
+                        onClose={() => setSelectedCategory(null)}
+                    />
+                )}
             </main>
 
             {/* Footer */}

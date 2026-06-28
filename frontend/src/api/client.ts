@@ -63,7 +63,7 @@ export const BlogApi = {
         }
     }),
     createBlog: (data: any) => apiClient.post('/blogs/create-blog', data),
-    getAllBlogs: () => apiClient.get('/blogs/get-all-blogs'),
+    getAllBlogs: (params?: any) => apiClient.get('/blogs/get-all-blogs', { params }),
     getUserBlogs: () => apiClient.get('/blogs/get-user-blogs'),
     getBlogById: (id: string | number) => apiClient.get(`/blogs/blog/${id}`),
     updateBlog: (id: string | number, data: any) => apiClient.put(`/blogs/update-blog/${id}`, data),
@@ -72,6 +72,7 @@ export const BlogApi = {
     getDeletedBlogs: () => apiClient.get('/blogs/deleted-blogs'),
     testAiPrompt: (data: { title: string }) => apiClient.post('/blogs/test-ai-prompt', data),
     getAnalytics: () => apiClient.get('/blogs/analytics'),
+    getCategoryCounts: () => apiClient.get('/blogs/category-counts'),
 };
 
 export const ProjectApi = {

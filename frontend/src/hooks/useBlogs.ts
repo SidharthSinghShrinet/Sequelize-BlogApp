@@ -9,9 +9,8 @@ export const useAllBlogs = () => {
     useEffect(() => {
         const fetchBlogs = async () => {
             try {
-                const response: any = await BlogApi.getAllBlogs();
-                const sorted = response.data.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-                setBlogs(sorted);
+                const response: any = await BlogApi.getAllBlogs({ all: true });
+                setBlogs(response.data);
             } catch (err) {
                 toast.error("Failed to fetch blogs.");
             } finally {
@@ -22,6 +21,75 @@ export const useAllBlogs = () => {
     }, []);
 
     return { blogs, loading };
+};
+
+export const usePaginatedBlogs = (options: { page: number; limit: number; search?: string; category?: string }) => {
+    const [blogs, setBlogs] = useState<any[]>([]);
+    const [pagination, setPagination] = useState<any>({
+        totalItems: 0,
+        totalPages: 1,
+        currentPage: 1,
+        limit: 9
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBlogs = async () => {
+            setLoading(true);
+            try {
+                const params: any = {
+                    page: options.page,
+                    limit: options.limit
+                };
+                if (options.search) params.search = options.search;
+                if (options.category) params.category = options.category;
+
+                const response: any = await BlogApi.getAllBlogs(params);
+                setBlogs(response.data.blogs || []);
+                setPagination(response.data.pagination || {
+                    totalItems: 0,
+                    totalPages: 1,
+                    currentPage: 1,
+                    limit: 9
+                });
+            } catch (err) {
+                toast.error("Failed to fetch blogs.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchBlogs();
+    }, [options.page, options.limit, options.search, options.category]);
+
+    return { blogs, pagination, loading };
+};
+
+export const useCategoryCounts = () => {
+    const [counts, setCounts] = useState<Record<string, number>>({
+        frontend: 0,
+        backend: 0,
+        databases: 0,
+        devops: 0,
+        ai: 0,
+        general: 0
+    });
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCounts = async () => {
+            try {
+                const response: any = await BlogApi.getCategoryCounts();
+                setCounts(response.data);
+            } catch (err) {
+                console.error("Failed to fetch category counts:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchCounts();
+    }, []);
+
+    return { counts, loading };
 };
 
 export const useBlog = (id: string | undefined) => {

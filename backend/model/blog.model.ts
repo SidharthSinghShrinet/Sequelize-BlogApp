@@ -40,6 +40,10 @@ const blogs = sequelize.define(
             onDelete: "SET NULL",
             onUpdate: "CASCADE"
         },
+        category: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
         createdAt: {
             type: DataTypes.DATE,
             allowNull: false,

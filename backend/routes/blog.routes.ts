@@ -8,7 +8,8 @@ import {
     updateBlog,
     uploadImage,
     testAiPrompt,
-    getPlatformAnalytics
+    getPlatformAnalytics,
+    getCategoryCounts
 } from "../controllers/blog.contoller";
 import authenticate from "../middleware/auth.middleware";
 import upload from "../middleware/multer.middleware";
@@ -26,5 +27,6 @@ router.delete("/delete-blog/:id", authenticate, deleteBlog);
 router.delete("/delete-all", authenticate, deleteALlBlog);
 router.get("/deleted-blogs", authenticate, getAllDeletedBlogs);
 router.get("/analytics", getPlatformAnalytics);
+router.get("/category-counts", getCategoryCounts);
 
 export default router;

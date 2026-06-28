@@ -8,6 +8,7 @@ import ApiResponse from "../utils/ApiResponse.utils";
 import users from "../model/user.model";
 import { uploadStream, uploadBufferToCloudinary } from "../utils/cloudinary.utils";
 import { generateSmartBlogCover } from "../utils/ai.utils";
+import { getCategoryForBlog } from "../utils/category.utils";
 
 const activateMediaForBlog = async (content: string, blogId: number) => {
     try {
@@ -107,12 +108,15 @@ const createBlog = expressAsyncHandler(
             }
         }
 
+        const category = getCategoryForBlog(title, content);
+
         const newBlog = await blogs.create({
             title,
             content,
             author: userId,
             thumbnail: thumbnailUrl,
-            projectId: projectId || null
+            projectId: projectId || null,
+            category
         });
         if (!newBlog) {
             throw new ErrorHandler("Failed to create blog, Please try again!", 500);
@@ -144,23 +148,69 @@ const createBlog = expressAsyncHandler(
 
 const getAllBlogs = expressAsyncHandler(
     async (req: express.Request, res: express.Response): Promise<any> => {
-        const allBlogs = await blogs.findAll(
-            {
-                where: { isActive: true },
-                include: [
-                    {
-                        model: users,
-                        as: "authorDetails",
-                        attributes: ["id", "username", "email", "phoneNumber"],
-                    },
-                ],
-            },
-        );
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 9;
+        const search = (req.query.search as string) || "";
+        const category = (req.query.category as string) || "";
+        const all = req.query.all === "true";
+        
+        const whereConditions: any = { isActive: true };
+        
+        if (search) {
+            whereConditions[Op.or] = [
+                { title: { [Op.like]: `%${search}%` } },
+                { content: { [Op.like]: `%${search}%` } }
+            ];
+        }
+        
+        if (category) {
+            if (whereConditions[Op.or]) {
+                whereConditions[Op.and] = [
+                    { [Op.or]: whereConditions[Op.or] },
+                    { category: category === "general" ? [null, "general"] : category }
+                ];
+                delete whereConditions[Op.or];
+            } else {
+                whereConditions.category = category === "general" ? [null, "general"] : category;
+            }
+        }
+        
+        const queryOptions: any = {
+            where: whereConditions,
+            order: [["createdAt", "DESC"]],
+            include: [
+                {
+                    model: users,
+                    as: "authorDetails",
+                    attributes: ["id", "username", "email", "phoneNumber"],
+                },
+            ],
+        };
+        
+        if (!all) {
+            queryOptions.limit = limit;
+            queryOptions.offset = (page - 1) * limit;
+        }
+        
+        const { count, rows: resultBlogs } = await blogs.findAndCountAll(queryOptions);
+        
+        const totalPages = all ? 1 : Math.ceil(count / limit);
+        
+        const responseData = all ? resultBlogs : {
+            blogs: resultBlogs,
+            pagination: {
+                totalItems: count,
+                totalPages,
+                currentPage: page,
+                limit
+            }
+        };
+
         return new ApiResponse(
             200,
             true,
             "Blogs retrieved successfully!",
-            allBlogs,
+            responseData,
         ).send(res);
     },
 );
@@ -219,8 +269,9 @@ const updateBlog = expressAsyncHandler(async (req: express.Request, res: express
     if (!title || !content) {
         throw new ErrorHandler("Title and content are required to update a blog!", 404);
     }
+    const category = getCategoryForBlog(title, content);
     const [affectedCount,] = await blogs.update(
-        { title, content, projectId: projectId || null },
+        { title, content, projectId: projectId || null, category },
         { where: { author: userId, id: id, isActive: true } },
     )
     if (!affectedCount) {
@@ -422,4 +473,34 @@ const getPlatformAnalytics = expressAsyncHandler(
     }
 );
 
-export { createBlog, getAllBlogs, getUserBlogs, getBlogById, updateBlog, deleteBlog, deleteALlBlog, getAllDeletedBlogs, uploadImage, testAiPrompt, getPlatformAnalytics };
+const getCategoryCounts = expressAsyncHandler(
+    async (req: express.Request, res: express.Response): Promise<any> => {
+        const categories = ["frontend", "backend", "databases", "devops", "ai", "general"];
+        const countsObj: Record<string, number> = {
+            frontend: 0,
+            backend: 0,
+            databases: 0,
+            devops: 0,
+            ai: 0,
+            general: 0
+        };
+        
+        for (const cat of categories) {
+            countsObj[cat] = await blogs.count({
+                where: {
+                    isActive: true,
+                    category: cat === "general" ? [null, "general"] : cat
+                }
+            });
+        }
+        
+        return new ApiResponse(
+            200,
+            true,
+            "Category counts retrieved successfully!",
+            countsObj
+        ).send(res);
+    }
+);
+
+export { createBlog, getAllBlogs, getUserBlogs, getBlogById, updateBlog, deleteBlog, deleteALlBlog, getAllDeletedBlogs, uploadImage, testAiPrompt, getPlatformAnalytics, getCategoryCounts };

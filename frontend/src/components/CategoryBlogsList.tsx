@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { getBlogImageUrl, calculateReadingTime } from '../hooks/useBlogs';
+import { getBlogImageUrl, calculateReadingTime, usePaginatedBlogs } from '../hooks/useBlogs';
 import type { CategoryInfo } from '../hooks/useBlogs';
 
 interface CategoryBlogsListProps {
     category: CategoryInfo | null;
-    blogs: any[];
     onClose: () => void;
 }
 
-const CategoryBlogsList: React.FC<CategoryBlogsListProps> = ({ category, blogs, onClose }) => {
+const CategoryBlogsList: React.FC<CategoryBlogsListProps> = ({ category, onClose }) => {
     // Prevent body scroll when drawer is open
     useEffect(() => {
         if (category) {
@@ -22,20 +21,13 @@ const CategoryBlogsList: React.FC<CategoryBlogsListProps> = ({ category, blogs, 
         };
     }, [category]);
 
-    if (!category) return null;
-
-    // Filter blogs dynamically
-    const filteredBlogs = blogs.filter((blog: any) => {
-        const combinedText = `${blog.title} ${blog.content}`.toLowerCase();
-        if (category.id === 'general') {
-            // General matches blogs that don't match any other category keywords
-            return blogs.every(() => {
-                const keywords = ['react', 'vue', 'angular', 'svelte', 'css', 'html', 'tailwind', 'flexbox', 'grid', 'frontend', 'ui', 'ux', 'components', 'responsive', 'dom', 'browser', 'javascript', 'typescript', 'node', 'bun', 'express', 'koa', 'nest', 'api', 'backend', 'rest', 'graphql', 'router', 'controller', 'middleware', 'auth', 'jwt', 'session', 'token', 'server', 'http', 'websocket', 'sequelize', 'mysql', 'postgres', 'postgresql', 'sqlite', 'mongodb', 'redis', 'nosql', 'sql', 'query', 'orm', 'migration', 'database', 'db', 'schema', 'transaction', 'indexing', 'cloudinary', 'cron', 'docker', 'kubernetes', 'aws', 'gcp', 'azure', 'deploy', 'deployment', 'ci/cd', 'github actions', 'upload', 'purged', 'cleanup', 'automation', 'pipeline', 'ai', 'llm', 'mistral', 'pollinations', 'flux', 'prompt', 'image generation', 'cover art', 'artwork', 'gpt', 'openai', 'diffusion', 'generative', 'brief', 'artist'];
-                return !keywords.some(keyword => combinedText.includes(keyword));
-            });
-        }
-        return category.keywords.some(keyword => combinedText.includes(keyword));
+    const { blogs, loading } = usePaginatedBlogs({
+        page: 1,
+        limit: 100, // Fetch up to 100 articles in the category
+        category: category?.id || ""
     });
+
+    if (!category) return null;
 
     return (
         <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
@@ -71,7 +63,7 @@ const CategoryBlogsList: React.FC<CategoryBlogsListProps> = ({ category, blogs, 
                         <div className="flex flex-col">
                             <h2 className="text-xl font-bold tracking-tight">{category.name}</h2>
                             <span className="text-[10px] uppercase font-bold tracking-wider font-mono opacity-80 mt-0.5">
-                                {filteredBlogs.length} {filteredBlogs.length === 1 ? 'Article' : 'Articles'} Published
+                                {!loading ? `${blogs.length} ${blogs.length === 1 ? 'Article' : 'Articles'} Published` : 'Loading articles...'}
                             </span>
                         </div>
                     </div>
@@ -84,7 +76,11 @@ const CategoryBlogsList: React.FC<CategoryBlogsListProps> = ({ category, blogs, 
 
                 {/* Scrollable Blogs List */}
                 <div className="flex-grow overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar">
-                    {filteredBlogs.length === 0 ? (
+                    {loading ? (
+                        <div className="h-full flex flex-col items-center justify-center py-20">
+                            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        </div>
+                    ) : blogs.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-center gap-4 py-12">
                             <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-950 border border-slate-100 dark:border-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-500 shadow-inner animate-bounce">
                                 <span className="material-symbols-outlined text-[32px]">drafts</span>
@@ -103,7 +99,7 @@ const CategoryBlogsList: React.FC<CategoryBlogsListProps> = ({ category, blogs, 
                             </Link>
                         </div>
                     ) : (
-                        filteredBlogs.map((blog: any) => {
+                        blogs.map((blog: any) => {
                             const readTime = calculateReadingTime(blog.content);
                             const authorInitial = blog.authorDetails?.username?.charAt(0).toUpperCase() || 'A';
                             const authorName = blog.authorDetails?.username || 'Anonymous';

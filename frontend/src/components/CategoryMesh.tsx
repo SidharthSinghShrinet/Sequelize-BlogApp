@@ -3,28 +3,12 @@ import { CATEGORIES } from '../hooks/useBlogs';
 import type { CategoryInfo } from '../hooks/useBlogs';
 
 interface CategoryMeshProps {
-    blogs: any[];
+    counts: Record<string, number>;
     onSelectCategory: (category: CategoryInfo) => void;
 }
 
-const CategoryMesh: React.FC<CategoryMeshProps> = ({ blogs, onSelectCategory }) => {
+const CategoryMesh: React.FC<CategoryMeshProps> = ({ counts, onSelectCategory }) => {
     const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-
-    // Calculate article count per category
-    const getArticleCount = (catId: string) => {
-        return blogs.filter((blog: any) => {
-            const combinedText = `${blog.title} ${blog.content}`.toLowerCase();
-            if (catId === 'general') {
-                // If it doesn't match any other categories
-                return CATEGORIES.every(cat => {
-                    if (cat.id === 'general') return true;
-                    return !cat.keywords.some(keyword => combinedText.includes(keyword));
-                });
-            }
-            const cat = CATEGORIES.find(c => c.id === catId);
-            return cat?.keywords.some(keyword => combinedText.includes(keyword)) ?? false;
-        }).length;
-    };
 
     // Radial coordinates centered on (400, 220)
     // Symmetrical layout with R = 180px, 6 radial directions
@@ -36,7 +20,7 @@ const CategoryMesh: React.FC<CategoryMeshProps> = ({ blogs, onSelectCategory }) 
             ...cat,
             x: center.x + R * Math.cos(angle),
             y: center.y + R * Math.sin(angle),
-            count: getArticleCount(cat.id)
+            count: counts[cat.id] || 0
         };
     });
 
