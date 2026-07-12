@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { UserApi, ApiError } from '../api/client';
@@ -20,6 +21,25 @@ type ProfileFormValues = z.infer<typeof profileSchema>;
 const ProfilePage = () => {
     const { user, updateUser, logout } = useAuth();
     const navigate = useNavigate();
+    
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string>(
+        user?.profileImage || ''
+    );
+
+    useEffect(() => {
+        if (user?.profileImage) {
+            setAvatarPreview(user.profileImage);
+        }
+    }, [user?.profileImage]);
+
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setAvatarFile(file);
+            setAvatarPreview(URL.createObjectURL(file));
+        }
+    };
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ProfileFormValues>({
         resolver: zodResolver(profileSchema),
@@ -33,19 +53,21 @@ const ProfilePage = () => {
 
     const onSubmit = async (data: ProfileFormValues) => {
         try {
-            // Clean up password if not typed
-            const payload: any = {
-                username: data.username,
-                email: data.email,
-                phoneNumber: data.phoneNumber,
-            };
+            const formData = new FormData();
+            formData.append('username', data.username);
+            formData.append('email', data.email);
+            formData.append('phoneNumber', data.phoneNumber);
             if (data.password && data.password.trim() !== '') {
-                payload.password = data.password;
+                formData.append('password', data.password);
+            }
+            if (avatarFile) {
+                formData.append('profileImage', avatarFile);
             }
 
-            const response: any = await UserApi.updateProfile(payload);
+            const response: any = await UserApi.updateProfile(formData);
             updateUser(response.data);
             toast.success('Profile updated successfully!');
+            setAvatarFile(null);
         } catch (err: any) {
             toast.error(err instanceof ApiError ? err.message : 'Failed to update profile.');
         }
@@ -84,9 +106,26 @@ const ProfilePage = () => {
 
                     {/* Left: Summary Profile Card */}
                     <div className="md:col-span-4 bg-white dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-100 dark:shadow-none p-8 flex flex-col items-center text-center">
-                        <div className="w-24 h-24 rounded-full bg-primary/10 border-2 border-primary/20 flex items-center justify-center font-bold text-3xl text-primary uppercase select-none shadow-sm mb-4">
-                            {user.username.charAt(0)}
+                        <div 
+                            onClick={() => document.getElementById('avatarInput')?.click()}
+                            className="w-24 h-24 rounded-full overflow-hidden bg-primary/10 border-2 border-primary/20 flex items-center justify-center font-bold text-3xl text-primary uppercase select-none shadow-sm mb-4 relative group cursor-pointer"
+                        >
+                            {avatarPreview ? (
+                                <img src={avatarPreview} alt={user.username} className="w-full h-full object-cover" />
+                            ) : (
+                                user.username.charAt(0)
+                            )}
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span className="material-symbols-outlined text-white text-2xl">add_a_photo</span>
+                            </div>
                         </div>
+                        <input
+                            type="file"
+                            id="avatarInput"
+                            accept="image/*"
+                            onChange={handleAvatarChange}
+                            className="hidden"
+                        />
                         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{user.username}</h2>
                         <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-wider">ShowOff Creator</p>
 

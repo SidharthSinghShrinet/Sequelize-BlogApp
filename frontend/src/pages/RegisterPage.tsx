@@ -19,6 +19,11 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 const RegisterPage = () => {
     const navigate = useNavigate();
     const [strength, setStrength] = useState(0);
+    const [showPassword, setShowPassword] = useState(false);
+    const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [avatarPreview, setAvatarPreview] = useState<string>(
+        "https://lh3.googleusercontent.com/aida-public/AB6AXuAUNHq_xXDP1wNTqjouWd8VMCso0okNtVnjEvBdLgHpKAlD9W1YjBD49kpo2V5OdzV4NiAzZOylM6EaOVOEDMA-MIp29MK-axzVFsR14nMiEATIIMWPqosLuVBHNDj_OAg8oCfpcoZy7d7efIoOPxCVTjdUi4Kzln43AXcU7Dz3uL2-lCW9VNjeBTZtApiHlA7HuSn9xbZIbsDRK---tOa8aNSw4WHTARRoTK8U6U3UAxNGzn0BgixJXKFdF6qvPUd4C4VWIf35vxg"
+    );
 
     const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -35,9 +40,26 @@ const RegisterPage = () => {
         setStrength(s);
     }, [passwordValue]);
 
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setAvatarFile(file);
+            setAvatarPreview(URL.createObjectURL(file));
+        }
+    };
+
     const onSubmit = async (data: RegisterFormValues) => {
         try {
-            await UserApi.register(data);
+            const formData = new FormData();
+            formData.append('username', data.username);
+            formData.append('email', data.email);
+            formData.append('phoneNumber', data.phoneNumber);
+            formData.append('password', data.password);
+            if (avatarFile) {
+                formData.append('profileImage', avatarFile);
+            }
+
+            await UserApi.register(formData);
             toast.success('Account created successfully! Please sign in.');
             navigate('/login');
         } catch (err: any) {
@@ -46,9 +68,9 @@ const RegisterPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-background dark:bg-slate-950 transition-colors duration-300 overflow-hidden">
+        <div className="h-screen overflow-hidden flex bg-background dark:bg-slate-950 transition-colors duration-300">
             {/* Left Decorative/Branding Sidebar - Visible on Desktop */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900 justify-center items-center">
+            <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-slate-900 justify-center items-center">
                 <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 z-0" />
                 <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[100px] z-0" />
                 <div className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] bg-indigo-500/10 rounded-full blur-[120px] z-0 animate-pulse" />
@@ -105,7 +127,7 @@ const RegisterPage = () => {
             </div>
 
             {/* Right Form Container - Vertically Centered & No scrollbar */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative overflow-hidden dark:bg-slate-950 transition-colors duration-300">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 h-full overflow-y-auto relative dark:bg-slate-950 transition-colors duration-300">
                 <div className="lg:hidden absolute top-10 right-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] -z-10" />
 
                 <div className="w-full max-w-[420px] flex flex-col">
@@ -120,90 +142,127 @@ const RegisterPage = () => {
                     </div>
 
                     {/* Register Card */}
-                    <div className="bg-white dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-100 dark:shadow-none p-8">
-                        <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-                            {/* Profile Photo Upload View - Compact */}
-                            <div className="flex flex-col items-center mb-4">
-                                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 relative group shadow-sm">
+                    <div className="rounded-xl border border-slate-200 bg-white text-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 p-5 md:p-6">
+                        <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+                            {/* Profile Photo Upload View - Compact Horizontal Layout */}
+                            <div className="flex items-center gap-4 mb-3 pb-3 border-b border-slate-100 dark:border-slate-800/40">
+                                <div
+                                    onClick={() => document.getElementById('avatarInput')?.click()}
+                                    className="w-12 h-12 rounded-full overflow-hidden border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 relative group shadow-sm shrink-0 cursor-pointer"
+                                >
                                     <img
-                                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAUNHq_xXDP1wNTqjouWd8VMCso0okNtVnjEvBdLgHpKAlD9W1YjBD49kpo2V5OdzV4NiAzZOylM6EaOVOEDMA-MIp29MK-axzVFsR14nMiEATIIMWPqosLuVBHNDj_OAg8oCfpcoZy7d7efIoOPxCVTjdUi4Kzln43AXcU7Dz3uL2-lCW9VNjeBTZtApiHlA7HuSn9xbZIbsDRK---tOa8aNSw4WHTARRoTK8U6U3UAxNGzn0BgixJXKFdF6qvPUd4C4VWIf35vxg"
+                                        src={avatarPreview}
                                         alt="Preview"
                                         className="w-full h-full object-cover"
                                     />
-                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                                        <span className="material-symbols-outlined text-white text-xs">add_a_photo</span>
+                                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span className="material-symbols-outlined text-white text-[14px]">add_a_photo</span>
                                     </div>
                                 </div>
-                                <span className="mt-1.5 text-primary dark:text-indigo-400 text-[10px] cursor-pointer font-bold tracking-wider hover:brightness-110 transition-all uppercase">Upload Avatar</span>
+                                <div className="flex flex-col text-left">
+                                    <span
+                                        onClick={() => document.getElementById('avatarInput')?.click()}
+                                        className="text-xs font-bold text-slate-800 dark:text-slate-200 cursor-pointer hover:text-slate-950 dark:hover:text-white transition-colors"
+                                    >
+                                        Profile Picture
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 dark:text-slate-500">Upload a custom developer avatar</span>
+                                </div>
+                                <input
+                                    type="file"
+                                    id="avatarInput"
+                                    accept="image/*"
+                                    onChange={handleAvatarChange}
+                                    className="hidden"
+                                />
                             </div>
 
                             {/* Username Input */}
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Username</label>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-3.5 text-slate-400 text-lg">person</span>
-                                    <input
-                                        className={`input-field w-full rounded-xl pl-10 pr-4 py-3 text-sm transition-all outline-none ${errors.username ? 'border-error focus:ring-error' : ''}`}
-                                        placeholder="johndoe"
-                                        {...register('username')}
-                                    />
-                                </div>
-                                {errors.username && <p className="text-error text-xs mt-1.5 font-medium">{errors.username.message}</p>}
-                            </div>
-
-                            {/* Email address */}
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Email address</label>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-3.5 text-slate-400 text-lg">mail</span>
-                                    <input
-                                        className={`input-field w-full rounded-xl pl-10 pr-4 py-3 text-sm transition-all outline-none ${errors.email ? 'border-error focus:ring-error' : ''}`}
-                                        type="email"
-                                        placeholder="you@example.com"
-                                        {...register('email')}
-                                    />
-                                </div>
-                                {errors.email && <p className="text-error text-xs mt-1.5 font-medium">{errors.email.message}</p>}
+                            <div className="space-y-1 text-left">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">
+                                    Username
+                                </label>
+                                <input
+                                    className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.username
+                                        ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900'
+                                        : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                                        }`}
+                                    placeholder="johndoe"
+                                    {...register('username')}
+                                />
+                                {errors.username && <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-0.5">{errors.username.message}</p>}
                             </div>
 
                             {/* Phone Number Input */}
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Phone Number</label>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-3.5 text-slate-400 text-lg">call</span>
-                                    <input
-                                        className={`input-field w-full rounded-xl pl-10 pr-4 py-3 text-sm transition-all outline-none ${errors.phoneNumber ? 'border-error focus:ring-error' : ''}`}
-                                        type="tel"
-                                        placeholder="10-digit number"
-                                        maxLength={10}
-                                        {...register('phoneNumber')}
-                                    />
-                                </div>
-                                {errors.phoneNumber && <p className="text-error text-xs mt-1.5 font-medium">{errors.phoneNumber.message}</p>}
+                            <div className="space-y-1 text-left">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-555 dark:text-slate-400">
+                                    Phone Number
+                                </label>
+                                <input
+                                    className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm ring-offset-background placeholder:text-slate-555 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.phoneNumber
+                                        ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900'
+                                        : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                                        }`}
+                                    type="tel"
+                                    placeholder="10-digit number"
+                                    maxLength={10}
+                                    {...register('phoneNumber')}
+                                />
+                                {errors.phoneNumber && <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-0.5">{errors.phoneNumber.message}</p>}
+                            </div>
+
+                            {/* Email address */}
+                            <div className="space-y-1 text-left">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">
+                                    Email address
+                                </label>
+                                <input
+                                    className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.email
+                                        ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900'
+                                        : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                                        }`}
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    {...register('email')}
+                                />
+                                {errors.email && <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-0.5">{errors.email.message}</p>}
                             </div>
 
                             {/* Password Input with Strength Meter */}
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+                            <div className="space-y-1 text-left">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">
+                                    Password
+                                </label>
                                 <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-3.5 text-slate-400 text-lg">lock</span>
                                     <input
-                                        className={`input-field w-full rounded-xl pl-10 pr-4 py-3 text-sm transition-all outline-none ${errors.password ? 'border-error focus:ring-error' : ''}`}
-                                        type="password"
+                                        className={`flex h-9 w-full rounded-md border bg-transparent pl-3 pr-10 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.password
+                                            ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900'
+                                            : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                                            }`}
+                                        type={showPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
                                         {...register('password')}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
+                                    >
+                                        <span className="material-symbols-outlined text-base">
+                                            {showPassword ? 'visibility_off' : 'visibility'}
+                                        </span>
+                                    </button>
                                 </div>
-                                {errors.password && <p className="text-error text-xs mt-1.5 font-medium">{errors.password.message}</p>}
+                                {errors.password && <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-0.5">{errors.password.message}</p>}
 
-                                <div className="mt-2.5 flex items-center gap-2">
+                                <div className="mt-2 flex items-center gap-2">
                                     <div className="h-1 flex-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-primary transition-all duration-300"
                                             style={{ width: `${strength}%` }}
                                         />
                                     </div>
-                                    <span className="text-[10px] uppercase font-bold min-w-[50px] text-slate-400 dark:text-slate-500 tracking-wider">
+                                    <span className="text-[9px] uppercase font-bold min-w-[50px] text-slate-400 dark:text-slate-500 tracking-wider">
                                         {strength <= 25 ? 'Weak' : strength <= 50 ? 'Fair' : strength <= 75 ? 'Good' : 'Strong'}
                                     </span>
                                 </div>
@@ -213,11 +272,11 @@ const RegisterPage = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-primary text-on-primary py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2 mt-4"
+                                className="inline-flex items-center justify-center rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-9 px-4 py-1 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 w-full mt-3"
                             >
                                 {isSubmitting ? (
                                     <>
-                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
@@ -226,7 +285,7 @@ const RegisterPage = () => {
                                 ) : (
                                     <>
                                         Create Account
-                                        <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                        <span className="material-symbols-outlined text-sm ml-1.5">arrow_forward</span>
                                     </>
                                 )}
                             </button>

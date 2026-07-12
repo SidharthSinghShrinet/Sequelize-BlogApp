@@ -48,12 +48,33 @@ apiClient.interceptors.response.use(
 );
 
 export const UserApi = {
-    register: (data: any) => apiClient.post('/users/register', data),
+    register: (data: any) => {
+        if (data instanceof FormData) {
+            return apiClient.post('/users/register', data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+        }
+        return apiClient.post('/users/register', data);
+    },
     login: (data: any) => apiClient.post('/users/login', data),
     logout: () => apiClient.get('/users/logout'),
     getMe: () => apiClient.get('/users/me'),
-    updateProfile: (data: any) => apiClient.put('/users/update', data),
+    updateProfile: (data: any) => {
+        if (data instanceof FormData) {
+            return apiClient.put('/users/update', data, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+        }
+        return apiClient.put('/users/update', data);
+    },
     deleteAccount: () => apiClient.delete('/users/delete'),
+    getPublicProfile: (username: string) => apiClient.get(`/users/profile/${username}`),
+    forgotPassword: (email: string) => apiClient.post('/users/forgot-password', { email }),
+    resetPassword: (data: any) => apiClient.post('/users/reset-password', data),
 };
 
 export const BlogApi = {
@@ -93,4 +114,9 @@ export const ProjectApi = {
     fetchGithubReadme: (githubUrl: string) => apiClient.get('/projects/github-readme', {
         params: { githubUrl }
     }),
+};
+
+export const BookmarkApi = {
+    toggleBookmark: (data: { blogId?: number; projectId?: number }) => apiClient.post('/bookmarks/toggle', data),
+    getBookmarks: () => apiClient.get('/bookmarks'),
 };

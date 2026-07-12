@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface ProjectCardProps {
     project: {
@@ -18,6 +19,8 @@ interface ProjectCardProps {
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+    const { user, isProjectBookmarked, toggleProjectBookmark } = useAuth();
+
     // Split tech stack string into array of tags
     const tags = project.techStack
         ? project.techStack.split(',').map((t) => t.trim()).filter((t) => t.length > 0)
@@ -42,6 +45,26 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             
             {/* Thumbnail Cover Banner */}
             <div className="h-44 w-full overflow-hidden relative bg-slate-100 dark:bg-slate-950 shrink-0 border-b border-slate-100 dark:border-slate-800/50">
+                {user && (
+                    <button 
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleProjectBookmark(project.id);
+                        }}
+                        className={`absolute top-3 left-3 p-1.5 rounded-full border shadow-sm flex items-center justify-center transition-all duration-200 z-10 hover:scale-105 ${
+                            isProjectBookmarked(project.id)
+                                ? 'bg-purple-600 border-purple-600 text-white dark:bg-purple-600 dark:border-purple-600'
+                                : 'bg-white border-slate-100 text-slate-500 hover:text-purple-600 hover:border-purple-200/50 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:text-indigo-400'
+                        }`}
+                        title={isProjectBookmarked(project.id) ? "Remove Bookmark" : "Save for Later"}
+                    >
+                        <span className="material-symbols-outlined text-[16px]">
+                            {isProjectBookmarked(project.id) ? 'bookmark' : 'bookmark_border'}
+                        </span>
+                    </button>
+                )}
+
                 {project.thumbnail ? (
                     <img 
                         src={project.thumbnail} 

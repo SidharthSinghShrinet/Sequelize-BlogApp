@@ -153,8 +153,13 @@ const getAllBlogs = expressAsyncHandler(
         const search = (req.query.search as string) || "";
         const category = (req.query.category as string) || "";
         const all = req.query.all === "true";
+        const authorId = req.query.authorId;
         
         const whereConditions: any = { isActive: true };
+        
+        if (authorId) {
+            whereConditions.author = Number(authorId);
+        }
         
         if (search) {
             whereConditions[Op.or] = [

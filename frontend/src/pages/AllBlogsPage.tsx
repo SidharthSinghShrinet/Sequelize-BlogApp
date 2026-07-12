@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
-import { usePaginatedBlogs, getBlogImageUrl } from '../hooks/useBlogs';
+import { usePaginatedBlogs } from '../hooks/useBlogs';
+import BlogCard from '../components/BlogCard';
 
 const AllBlogsPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -78,27 +78,7 @@ const AllBlogsPage = () => {
                     <>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
                             {blogs.map((post: any) => (
-                                <Link to={`/post/${post.id}`} key={post.id} className="bg-surface-container-lowest dark:bg-slate-900 rounded-xl overflow-hidden border border-outline-variant/30 dark:border-slate-800 shadow-sm hover:shadow-md hover:border-primary/30 dark:hover:border-primary/50 transition-all group flex flex-col">
-                                    <div className="h-48 overflow-hidden relative">
-                                        <img src={getBlogImageUrl(post.content, post.title, post.id, post.thumbnail)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt={post.title} />
-                                        <div className="absolute top-sm left-sm px-2 py-1 bg-surface/80 dark:bg-slate-950/80 backdrop-blur-md rounded font-label-sm text-primary">Article</div>
-                                    </div>
-                                    <div className="p-sm flex flex-col flex-grow gap-sm">
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center text-xs font-bold">{post.authorDetails?.username?.charAt(0).toUpperCase()}</div>
-                                            <span className="text-label-sm text-on-surface-variant dark:text-slate-400">{post.authorDetails?.username} • {new Date(post.createdAt).toLocaleDateString()}</span>
-                                        </div>
-                                        <h2 className="font-headline-md text-on-surface dark:text-white group-hover:text-primary dark:group-hover:text-indigo-400 transition-colors line-clamp-2">{post.title}</h2>
-                                        <p className="font-body-md text-on-surface-variant dark:text-slate-400 line-clamp-3">{post.content.replace(/<[^>]*>?/gm, '').substring(0, 150)}...</p>
-                                    </div>
-                                    <div className="border-t border-outline-variant/30 dark:border-slate-800 px-sm py-xs flex justify-between items-center text-on-surface-variant dark:text-slate-400">
-                                        <div className="flex gap-4">
-                                            <button className="flex items-center gap-1 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined text-[18px]">favorite</span> 0</button>
-                                            <button className="flex items-center gap-1 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined text-[18px]">chat_bubble</span> 0</button>
-                                        </div>
-                                        <span className="material-symbols-outlined text-[18px] hover:text-primary dark:hover:text-indigo-400">share</span>
-                                    </div>
-                                </Link>
+                                <BlogCard key={post.id} post={post} />
                             ))}
                         </div>
                         

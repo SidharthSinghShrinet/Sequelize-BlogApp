@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ApiError } from '../api/client';
@@ -18,6 +18,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 const LoginPage = () => {
     const navigate = useNavigate();
     const { login } = useAuth();
+    const [showPassword, setShowPassword] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -34,9 +35,9 @@ const LoginPage = () => {
     };
 
     return (
-        <div className="min-h-screen flex bg-background dark:bg-slate-950 transition-colors duration-300">
+        <div className="h-screen overflow-hidden flex bg-background dark:bg-slate-950 transition-colors duration-300">
             {/* Left Decorative/Branding Sidebar - Visible on Desktop */}
-            <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden bg-slate-900 justify-center items-center">
+            <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-slate-900 justify-center items-center">
                 {/* Decorative background gradients */}
                 <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 z-0" />
                 <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[100px] z-0 animate-pulse" />
@@ -94,7 +95,7 @@ const LoginPage = () => {
             </div>
 
             {/* Right Form Container */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 relative dark:bg-slate-950 transition-colors duration-300">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-6 md:p-12 h-full overflow-y-auto relative dark:bg-slate-950 transition-colors duration-300">
                 {/* Micro background blob on mobile */}
                 <div className="lg:hidden absolute top-10 left-10 w-48 h-48 bg-primary/5 rounded-full blur-[80px] -z-10" />
 
@@ -110,52 +111,77 @@ const LoginPage = () => {
                     </div>
 
                     {/* Login Card */}
-                    <div className="bg-white dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-100 dark:shadow-none p-8">
-                        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Email address</label>
-                                <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-3.5 text-slate-400 text-lg">mail</span>
-                                    <input
-                                        className={`input-field w-full rounded-xl pl-10 pr-4 py-3 text-sm transition-all outline-none ${errors.email ? 'border-error focus:ring-error' : ''}`}
-                                        type="email"
-                                        placeholder="you@example.com"
-                                        {...register('email')}
-                                    />
-                                </div>
-                                {errors.email && <p className="text-error text-xs mt-1.5 font-medium">{errors.email.message}</p>}
+                    <div className="rounded-xl border border-slate-200 bg-white text-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 p-5 md:p-6">
+                        <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
+                            <div className="space-y-1">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">
+                                    Email address
+                                </label>
+                                <input
+                                    className={`flex h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                        errors.email 
+                                            ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900' 
+                                            : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                                    }`}
+                                    type="email"
+                                    placeholder="name@example.com"
+                                    {...register('email')}
+                                />
+                                {errors.email && <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-0.5">{errors.email.message}</p>}
                             </div>
 
-                            <div>
-                                <div className="flex justify-between items-center mb-1.5">
-                                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Password</label>
-                                    <a href="#" className="text-xs text-primary dark:text-indigo-400 font-bold hover:underline transition-all">Forgot password?</a>
+                            <div className="space-y-1">
+                                <div className="flex justify-between items-center">
+                                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-555 dark:text-slate-400">
+                                        Password
+                                    </label>
+                                    <Link to="/forgot-password" className="text-xs text-muted-foreground hover:text-slate-900 dark:hover:text-slate-50 hover:underline transition-colors font-medium">
+                                        Forgot password?
+                                    </Link>
                                 </div>
                                 <div className="relative">
-                                    <span className="material-symbols-outlined absolute left-3 top-3.5 text-slate-400 text-lg">lock</span>
                                     <input
-                                        className={`input-field w-full rounded-xl pl-10 pr-4 py-3 text-sm transition-all outline-none ${errors.password ? 'border-error focus:ring-error' : ''}`}
-                                        type="password"
+                                        className={`flex h-9 w-full rounded-md border bg-transparent pl-3 pr-10 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                            errors.password 
+                                                ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900' 
+                                                : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
+                                        }`}
+                                        type={showPassword ? 'text' : 'password'}
                                         placeholder="••••••••"
                                         {...register('password')}
                                     />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
+                                    >
+                                        <span className="material-symbols-outlined text-base">
+                                            {showPassword ? 'visibility_off' : 'visibility'}
+                                        </span>
+                                    </button>
                                 </div>
-                                {errors.password && <p className="text-error text-xs mt-1.5 font-medium">{errors.password.message}</p>}
+                                {errors.password && <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-0.5">{errors.password.message}</p>}
                             </div>
 
-                            <div className="flex items-center">
-                                <input type="checkbox" id="remember" className="h-4.5 w-4.5 rounded border-slate-300 dark:border-slate-800 text-primary dark:bg-slate-950 focus:ring-primary/20 cursor-pointer" />
-                                <label htmlFor="remember" className="ml-2.5 text-xs text-slate-600 dark:text-slate-400 cursor-pointer font-medium select-none">Remember this device</label>
+                            <div className="flex items-center space-x-2 pt-1">
+                                <input 
+                                    type="checkbox" 
+                                    id="remember" 
+                                    className="h-4 w-4 rounded border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-50 focus:ring-slate-950 focus:ring-offset-2 dark:bg-slate-955 cursor-pointer" 
+                                />
+                                <label htmlFor="remember" className="text-xs text-slate-500 dark:text-slate-400 cursor-pointer font-medium select-none">
+                                    Remember this device
+                                </label>
                             </div>
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-primary text-on-primary py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-primary/20 hover:shadow-primary/35 hover:brightness-105 active:scale-[0.99] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                                className="inline-flex items-center justify-center rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-10 px-4 py-2 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 w-full mt-2"
                             >
                                 {isSubmitting ? (
                                     <>
-                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                        <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>

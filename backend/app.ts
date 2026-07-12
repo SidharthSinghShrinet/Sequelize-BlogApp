@@ -7,6 +7,7 @@ import cors from "cors";
 import userRoutes from "./routes/user.routes.ts";
 import blogRoutes from "./routes/blog.routes.ts";
 import projectRoutes from "./routes/project.routes.ts";
+import bookmarkRoutes from "./routes/bookmark.routes.ts";
 import cookieParser from "cookie-parser";
 import "./model/associations.ts";
 
@@ -27,6 +28,7 @@ app.use(express.json());
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/blogs", blogRoutes);
 app.use("/api/v1/projects", projectRoutes);
+app.use("/api/v1/bookmarks", bookmarkRoutes);
 // Global Error Handler
 app.use(error);
 

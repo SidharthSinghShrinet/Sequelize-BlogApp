@@ -97,6 +97,23 @@ const TopNavBar = () => {
                             </>
                         )}
                     </NavLink>
+                    {user && (
+                        <NavLink 
+                            to="/library" 
+                            className={({ isActive }) => `relative flex items-center h-full text-[15px] transition-all font-semibold ${
+                                isActive ? 'text-slate-900 dark:text-white' : 'text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white'
+                            }`}
+                        >
+                            {({ isActive }) => (
+                                <>
+                                    <span>Library</span>
+                                    {isActive && (
+                                        <span className="absolute bottom-4 left-1/2 -translate-x-1/2 w-6 h-[3px] bg-primary rounded-full animate-[scaleX_0.2s_ease-out]" />
+                                    )}
+                                </>
+                            )}
+                        </NavLink>
+                    )}
                 </nav>
 
                 {/* Right side Actions */}
@@ -128,8 +145,12 @@ const TopNavBar = () => {
                             </Link>
                             
                             <Link to="/profile" className="flex items-center gap-2.5 group hover:opacity-85 transition-opacity">
-                                <div className="w-8 h-8 rounded-full bg-indigo-50 border border-indigo-100 dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-primary uppercase select-none group-hover:border-primary">
-                                    {user.username.charAt(0)}
+                                <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-50 border border-indigo-100 dark:bg-slate-800 dark:border-slate-700 flex items-center justify-center font-bold text-xs text-primary uppercase select-none group-hover:border-primary">
+                                    {user.profileImage ? (
+                                        <img src={user.profileImage} alt={user.username} className="w-full h-full object-cover" />
+                                    ) : (
+                                        user.username.charAt(0)
+                                    )}
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-none group-hover:text-primary transition-colors">{user.username}</span>

@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 
 const ProjectDetailPage = () => {
     const { id } = useParams<{ id: string }>();
-    const { user } = useAuth();
+    const { user, isProjectBookmarked, toggleProjectBookmark } = useAuth();
     const navigate = useNavigate();
 
     const [project, setProject] = useState<any>(null);
@@ -125,7 +125,7 @@ const ProjectDetailPage = () => {
                                 {tags.map((tag: string, idx: number) => (
                                     <span
                                         key={idx}
-                                        className="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-300 border border-slate-200/50 dark:border-slate-800 rounded-md px-2.5 py-1 text-[10px] font-bold"
+                                        className="bg-slate-50 dark:bg-slate-950 text-slate-700 dark:text-slate-355 border border-slate-200/50 dark:border-slate-800 rounded-md px-2.5 py-1 text-[10px] font-bold"
                                     >
                                         {tag}
                                     </span>
@@ -147,6 +147,21 @@ const ProjectDetailPage = () => {
 
                             {/* Showcase Links */}
                             <div className="flex items-center gap-3">
+                                {user && (
+                                    <button
+                                        onClick={() => toggleProjectBookmark(project.id)}
+                                        className={`text-xs font-bold px-4 py-2 rounded-xl shadow-sm active:scale-[0.98] transition-all flex items-center gap-1.5 border ${
+                                            isProjectBookmarked(project.id)
+                                                ? 'bg-primary text-white border-primary hover:brightness-105 shadow-md shadow-primary/20'
+                                                : 'bg-slate-100 text-slate-800 hover:bg-slate-200/80 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-750 border-slate-200/20 dark:border-slate-700'
+                                        }`}
+                                    >
+                                        <span className="material-symbols-outlined text-sm">
+                                            {isProjectBookmarked(project.id) ? 'bookmark' : 'bookmark_border'}
+                                        </span>
+                                        {isProjectBookmarked(project.id) ? 'Saved' : 'Save for Later'}
+                                    </button>
+                                )}
                                 {project.githubUrl && (
                                     <a
                                         href={project.githubUrl}

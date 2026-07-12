@@ -10,7 +10,7 @@ import toast from 'react-hot-toast';
 const BlogPostPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, isBlogBookmarked, toggleBlogBookmark } = useAuth();
     
     const [progress, setProgress] = useState(0);
     const { blog, loading, error } = useBlog(id);
@@ -66,16 +66,29 @@ const BlogPostPage = () => {
                 <article className="max-w-[720px] mx-auto">
                     <div className="mb-sm flex gap-2 justify-between items-center">
                         <span className="inline-flex items-center rounded-full bg-primary/15 px-3 py-1 font-label-sm text-primary">Article</span>
-                        {isAuthor && (
-                            <div className="flex gap-2">
-                                <Link to={`/edit/${blog.id}`} className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-indigo-400 transition-colors font-label-md flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[18px]">edit</span> Edit
-                                </Link>
-                                <button onClick={handleDelete} className="text-error hover:brightness-110 transition-colors font-label-md flex items-center gap-1">
-                                    <span className="material-symbols-outlined text-[18px]">delete</span> Delete
+                        <div className="flex items-center gap-4">
+                            {user && (
+                                <button 
+                                    onClick={() => toggleBlogBookmark(blog.id)}
+                                    className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-indigo-400 transition-colors font-label-md flex items-center gap-1"
+                                >
+                                    <span className="material-symbols-outlined text-[18px]">
+                                        {isBlogBookmarked(blog.id) ? 'bookmark' : 'bookmark_border'}
+                                    </span>
+                                    {isBlogBookmarked(blog.id) ? 'Saved' : 'Save'}
                                 </button>
-                            </div>
-                        )}
+                            )}
+                            {isAuthor && (
+                                <div className="flex gap-2">
+                                    <Link to={`/edit/${blog.id}`} className="text-secondary dark:text-slate-400 hover:text-primary dark:hover:text-indigo-400 transition-colors font-label-md flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[18px]">edit</span> Edit
+                                    </Link>
+                                    <button onClick={handleDelete} className="text-error hover:brightness-110 transition-colors font-label-md flex items-center gap-1">
+                                        <span className="material-symbols-outlined text-[18px]">delete</span> Delete
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <h1 className="font-headline-xl text-on-surface dark:text-white mb-md">{blog.title}</h1>
                     <div className="flex items-center gap-sm mb-lg border-y border-outline-variant dark:border-slate-800 py-md">

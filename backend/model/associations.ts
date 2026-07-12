@@ -46,3 +46,48 @@ blogs.belongsTo(projects, {
   onUpdate: "CASCADE",
   as: "projectDetails",
 });
+
+// Bookmarks
+import bookmarks from "./bookmark.model.ts";
+
+users.hasMany(bookmarks, {
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "bookmarks",
+});
+
+bookmarks.belongsTo(users, {
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "user",
+});
+
+bookmarks.belongsTo(blogs, {
+  foreignKey: "blogId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "blog",
+});
+
+bookmarks.belongsTo(projects, {
+  foreignKey: "projectId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "project",
+});
+
+blogs.hasMany(bookmarks, {
+  foreignKey: "blogId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "bookmarks",
+});
+
+projects.hasMany(bookmarks, {
+  foreignKey: "projectId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "bookmarks",
+});

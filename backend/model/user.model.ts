@@ -10,6 +10,7 @@ const users = sequelize.define("users", {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   email: {
     type: DataTypes.STRING,
@@ -22,9 +23,6 @@ const users = sequelize.define("users", {
   password: {
     type: DataTypes.STRING,
     allowNull: false,
-    validate: {
-      len: [6, 20], // Only allow values between 6 and 20 characters in length
-    },
   },
   phoneNumber: {
     type: DataTypes.STRING,
@@ -34,9 +32,21 @@ const users = sequelize.define("users", {
       len: [10, 10], // Only allow values whose length is exactly 10 characters
     },
   },
-  isActive:{
+  isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
+  },
+  profileImage: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordToken: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  resetPasswordTokenExpiry: {
+    type: DataTypes.DATE,
+    allowNull: true,
   }
 });
 
