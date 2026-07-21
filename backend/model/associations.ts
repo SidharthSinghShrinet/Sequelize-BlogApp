@@ -3,6 +3,7 @@ import blogs from "./blog.model";
 import projects from "./project.model";
 import bookmarks from "./bookmark.model.ts";
 import comments from "./comment.model.ts";
+import likes from "./like.model.ts";
 
 // User & Blogs
 users.hasMany(blogs, {
@@ -150,4 +151,35 @@ comments.belongsTo(comments, {
   onUpdate: "CASCADE",
   as: "parent",
 });
+
+// Likes
+
+users.hasMany(likes, {
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "likes",
+});
+
+likes.belongsTo(users, {
+  foreignKey: "userId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "userDetails",
+});
+
+blogs.hasMany(likes, {
+  foreignKey: "blogId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "likes",
+});
+
+likes.belongsTo(blogs, {
+  foreignKey: "blogId",
+  onDelete: "CASCADE",
+  onUpdate: "CASCADE",
+  as: "blog",
+});
+
 

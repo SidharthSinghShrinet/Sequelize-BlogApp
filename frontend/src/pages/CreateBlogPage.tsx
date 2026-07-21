@@ -508,9 +508,18 @@ const CreateBlogPage = () => {
                         {errors.content && <p className="text-error text-label-sm px-md pb-md">{errors.content.message}</p>}
                     </div>
                     <div className="flex justify-end mt-auto">
-                        <button type="submit" disabled={isSubmitting} className="bg-primary text-on-primary px-8 py-3 rounded-lg flex items-center gap-2 shadow-lg disabled:opacity-50 hover:brightness-110 transition-all">
-                            <span className="material-symbols-outlined text-[20px]">{isEditMode ? 'save' : 'publish'}</span>
-                            {isSubmitting ? (isEditMode ? 'Saving...' : 'Publishing...') : (isEditMode ? 'Save Changes' : 'Publish Blog')}
+                        <button type="submit" disabled={isSubmitting} className="bg-primary text-on-primary px-8 py-3 rounded-lg flex items-center gap-2 shadow-lg disabled:opacity-50 hover:brightness-110 transition-all font-semibold">
+                            {isSubmitting ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    <span>{isEditMode ? 'Saving Blog...' : 'Publishing Blog...'}</span>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="material-symbols-outlined text-[20px]">{isEditMode ? 'save' : 'publish'}</span>
+                                    <span>{isEditMode ? 'Save Changes' : 'Publish Blog'}</span>
+                                </>
+                            )}
                         </button>
                     </div>
                 </form>

@@ -6,6 +6,7 @@ import blogs from "../model/blog.model";
 import media from "../model/media.model";
 import ApiResponse from "../utils/ApiResponse.utils";
 import users from "../model/user.model";
+import likes from "../model/like.model";
 import { uploadStream, uploadBufferToCloudinary } from "../utils/cloudinary.utils";
 import { generateSmartBlogCover } from "../utils/ai.utils";
 import { getCategoryForBlog } from "../utils/category.utils";
@@ -244,7 +245,7 @@ const getUserBlogs = expressAsyncHandler(
 
 const getBlogById = expressAsyncHandler(async (req: express.Request, res: express.Response): Promise<any> => {
     const { id } = req.params;
-    console.log(typeof id);
+    const userId = req.user ? req.user.toJSON().id : null;
     const blog = await blogs.findOne(
         {
             where: { id: id, isActive: true },
@@ -259,11 +260,21 @@ const getBlogById = expressAsyncHandler(async (req: express.Request, res: expres
     if (!blog) {
         throw new ErrorHandler("Blog not found!", 404);
     }
+    const likesCount = await likes.count({ where: { blogId: Number(id) } });
+    let isLikedByMe = false;
+    if (userId) {
+        const userLike = await likes.findOne({ where: { blogId: Number(id), userId } });
+        isLikedByMe = !!userLike;
+    }
+    const blogData = blog.toJSON();
+    blogData.likesCount = likesCount;
+    blogData.isLikedByMe = isLikedByMe;
+
     return new ApiResponse(
         200,
         true,
         "Blog retrieved successfully!",
-        blog,
+        blogData,
     ).send(res);
 })
 
@@ -508,4 +519,75 @@ const getCategoryCounts = expressAsyncHandler(
     }
 );
 
-export { createBlog, getAllBlogs, getUserBlogs, getBlogById, updateBlog, deleteBlog, deleteALlBlog, getAllDeletedBlogs, uploadImage, testAiPrompt, getPlatformAnalytics, getCategoryCounts };
+const toggleBlogLike = expressAsyncHandler(
+    async (req: express.Request, res: express.Response): Promise<any> => {
+        const userId = req.user?.toJSON().id;
+        const { id } = req.params;
+        const blogId = Number(id);
+
+        const blog = await blogs.findByPk(blogId);
+        if (!blog || !blog.getDataValue("isActive")) {
+            throw new ErrorHandler("Blog not found!", 404);
+        }
+
+        const existingLike = await likes.findOne({
+            where: { userId, blogId }
+        });
+
+        let liked = false;
+        if (existingLike) {
+            await existingLike.destroy();
+            liked = false;
+        } else {
+            await likes.create({ userId, blogId });
+            liked = true;
+        }
+
+        const likesCount = await likes.count({ where: { blogId } });
+
+        return new ApiResponse(
+            200,
+            true,
+            liked ? "Blog liked successfully!" : "Blog unliked successfully!",
+            { liked, likesCount }
+        ).send(res);
+    }
+);
+
+const getBlogLikes = expressAsyncHandler(
+    async (req: express.Request, res: express.Response): Promise<any> => {
+        const { id } = req.params;
+        const blogId = Number(id);
+        const userId = req.user ? req.user.toJSON().id : null;
+
+        const blog = await blogs.findByPk(blogId);
+        if (!blog || !blog.getDataValue("isActive")) {
+            throw new ErrorHandler("Blog not found!", 404);
+        }
+
+        const blogLikes = await likes.findAll({
+            where: { blogId },
+            include: [
+                {
+                    model: users,
+                    as: "userDetails",
+                    attributes: ["id", "username", "email", "profileImage"]
+                }
+            ],
+            order: [["createdAt", "DESC"]]
+        });
+
+        const likedUsers = blogLikes.map((likeRecord: any) => likeRecord.userDetails).filter(Boolean);
+        const likesCount = likedUsers.length;
+        const isLikedByMe = userId ? likedUsers.some((u: any) => u.id === userId) : false;
+
+        return new ApiResponse(
+            200,
+            true,
+            "Blog likes retrieved successfully!",
+            { likesCount, isLikedByMe, likedUsers }
+        ).send(res);
+    }
+);
+
+export { createBlog, getAllBlogs, getUserBlogs, getBlogById, updateBlog, deleteBlog, deleteALlBlog, getAllDeletedBlogs, uploadImage, testAiPrompt, getPlatformAnalytics, getCategoryCounts, toggleBlogLike, getBlogLikes };

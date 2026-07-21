@@ -6,6 +6,8 @@ import { BlogApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useBlog, getBlogImageUrl, calculateReadingTime } from '../hooks/useBlogs';
 import CommentSection from '../components/CommentSection';
+import LikedUsersModal from '../components/LikedUsersModal';
+import ShareModal from '../components/ShareModal';
 import toast from 'react-hot-toast';
 
 const BlogPostPage = () => {
@@ -14,7 +16,9 @@ const BlogPostPage = () => {
     const { user, isBlogBookmarked, toggleBlogBookmark } = useAuth();
     
     const [progress, setProgress] = useState(0);
-    const { blog, loading, error } = useBlog(id);
+    const [isLikedModalOpen, setIsLikedModalOpen] = useState(false);
+    const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+    const { blog, loading, error, likesCount, isLiked, toggleLike } = useBlog(id);
 
     useEffect(() => {
         if (error) {
@@ -41,6 +45,23 @@ const BlogPostPage = () => {
         } catch (err) {
             toast.error("Failed to delete blog");
         }
+    };
+
+    const handleShareClick = async () => {
+        const shareUrl = window.location.href;
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({
+                    title: blog.title,
+                    text: `Check out "${blog.title}" on ShowOff!`,
+                    url: shareUrl,
+                });
+                return;
+            } catch (err: any) {
+                if (err.name === 'AbortError') return;
+            }
+        }
+        setIsShareModalOpen(true);
     };
 
     if (loading) {
@@ -102,21 +123,75 @@ const BlogPostPage = () => {
                         </div>
                     </div>
                     <figure className="mb-lg">
-                        <img className="w-full h-[400px] object-cover rounded-xl shadow-lg" src={getBlogImageUrl(blog.content, blog.title, blog.id, blog.thumbnail)} alt={blog.title} />
+                        <img className="w-full h-52 sm:h-80 md:h-[420px] object-cover rounded-xl shadow-lg" src={getBlogImageUrl(blog.content, blog.title, blog.id, blog.thumbnail)} alt={blog.title} />
                     </figure>
                     <div 
                         className="font-body-lg text-slate-800 dark:text-slate-200 prose dark:prose-invert max-w-none leading-relaxed font-normal"
                         dangerouslySetInnerHTML={{ __html: blog.content }}
                     />
-                    <div className="mt-xl flex justify-between py-sm border-y border-outline-variant dark:border-slate-800 text-slate-600 dark:text-slate-400">
-                        <div className="flex gap-sm">
-                            <button className="flex items-center gap-2 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined">favorite</span> 0</button>
-                            <button className="flex items-center gap-2 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined">chat_bubble</span> Comments</button>
+                    
+                    {/* Action buttons (Likes & Comments & Share) */}
+                    <div className="mt-xl flex flex-wrap items-center justify-between py-sm border-y border-outline-variant dark:border-slate-800 text-slate-600 dark:text-slate-400 gap-y-3">
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center bg-slate-100/70 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-1">
+                                <button 
+                                    onClick={() => {
+                                        if (!user) {
+                                            toast.error("Please login to like this blog post");
+                                            return;
+                                        }
+                                        toggleLike();
+                                    }}
+                                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${
+                                        isLiked 
+                                            ? 'bg-rose-500 text-white font-bold shadow-sm' 
+                                            : 'text-slate-600 dark:text-slate-300 hover:text-rose-500 dark:hover:text-rose-400'
+                                    }`}
+                                    title={isLiked ? "Unlike post" : "Like post"}
+                                >
+                                    <span className={`material-symbols-outlined text-[18px] ${isLiked ? 'fill-1' : ''}`}>
+                                        favorite
+                                    </span>
+                                    <span className="text-xs font-semibold">{isLiked ? 'Liked' : 'Like'}</span>
+                                </button>
+
+                                <button
+                                    onClick={() => setIsLikedModalOpen(true)}
+                                    className="px-3 py-1.5 text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:underline transition-colors flex items-center gap-1 border-l border-slate-200 dark:border-slate-800 ml-1"
+                                    title="View list of people who liked this post"
+                                >
+                                    <span>{likesCount} {likesCount === 1 ? 'Like' : 'Likes'}</span>
+                                </button>
+                            </div>
                         </div>
-                        <button className="flex items-center gap-2 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"><span className="material-symbols-outlined">share</span> Share</button>
+
+                        <div className="flex items-center gap-2">
+                            <button 
+                                onClick={handleShareClick}
+                                className="flex items-center gap-2 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-primary dark:hover:text-indigo-400 transition-colors text-xs font-semibold"
+                                title="Share article"
+                            >
+                                <span className="material-symbols-outlined text-[18px]">share</span> Share
+                            </button>
+                        </div>
                     </div>
+                    
                     <CommentSection targetType="blog" targetId={blog.id} authorId={blog.author} />
                 </article>
+
+                {/* Liked Users Modal */}
+                <LikedUsersModal 
+                    blogId={blog.id} 
+                    isOpen={isLikedModalOpen} 
+                    onClose={() => setIsLikedModalOpen(false)} 
+                />
+
+                {/* Article Share Modal */}
+                <ShareModal
+                    title={blog.title}
+                    isOpen={isShareModalOpen}
+                    onClose={() => setIsShareModalOpen(false)}
+                />
             </main>
             <Footer />
         </div>

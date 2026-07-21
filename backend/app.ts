@@ -17,7 +17,7 @@ const app = express();
 app.use(
   cors({
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    origin: ["http://localhost:3000"],
+    origin: (_origin, callback) => callback(null, true),
     credentials: true,
   }),
 );

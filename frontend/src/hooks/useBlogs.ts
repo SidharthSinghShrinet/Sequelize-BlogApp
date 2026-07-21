@@ -96,6 +96,8 @@ export const useBlog = (id: string | undefined) => {
     const [blog, setBlog] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Error | null>(null);
+    const [likesCount, setLikesCount] = useState<number>(0);
+    const [isLiked, setIsLiked] = useState<boolean>(false);
 
     useEffect(() => {
         const fetchBlog = async () => {
@@ -103,6 +105,8 @@ export const useBlog = (id: string | undefined) => {
             try {
                 const response: any = await BlogApi.getBlogById(id);
                 setBlog(response.data);
+                setLikesCount(response.data?.likesCount || 0);
+                setIsLiked(!!response.data?.isLikedByMe);
             } catch (err: any) {
                 setError(err);
                 toast.error("Failed to fetch blog.");
@@ -113,7 +117,32 @@ export const useBlog = (id: string | undefined) => {
         fetchBlog();
     }, [id]);
 
-    return { blog, loading, error };
+    const toggleLike = async () => {
+        if (!id) return;
+        const prevCount = likesCount;
+        const prevIsLiked = isLiked;
+
+        // Optimistic update
+        const newIsLiked = !isLiked;
+        const newCount = newIsLiked ? likesCount + 1 : Math.max(0, likesCount - 1);
+        setIsLiked(newIsLiked);
+        setLikesCount(newCount);
+
+        try {
+            const response: any = await BlogApi.toggleLike(id);
+            if (response.success) {
+                setIsLiked(response.data.liked);
+                setLikesCount(response.data.likesCount);
+            }
+        } catch (err: any) {
+            // Revert on error
+            setIsLiked(prevIsLiked);
+            setLikesCount(prevCount);
+            toast.error(err?.message || "Failed to update like status.");
+        }
+    };
+
+    return { blog, loading, error, likesCount, isLiked, toggleLike, setLikesCount, setIsLiked };
 };
 
 export const generateSvgThumbnail = (title: string, content: string) => {

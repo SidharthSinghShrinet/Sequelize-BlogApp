@@ -69,30 +69,30 @@ const HomePage = () => {
                     {/* Left Column: Headline & Content */}
                     <div className="lg:col-span-5 flex flex-col gap-6 relative z-10">
                         <div className="flex flex-col">
-                            <h1 className="text-6xl md:text-7xl font-bold font-serif tracking-tight text-slate-900 dark:text-white leading-[1.05]">
+                            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold font-serif tracking-tight text-slate-900 dark:text-white leading-[1.08]">
                                 Write.
                             </h1>
-                            <h1 className="text-6xl md:text-7xl font-bold font-serif tracking-tight text-slate-900 dark:text-white leading-[1.05]">
+                            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold font-serif tracking-tight text-slate-900 dark:text-white leading-[1.08]">
                                 Share.
                             </h1>
-                            <h1 className="text-6xl md:text-7xl font-bold font-serif tracking-tight text-primary leading-[1.05]">
+                            <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold font-serif tracking-tight text-primary leading-[1.08]">
                                 Showoff.
                             </h1>
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-lg leading-relaxed max-w-[420px]">
+                        <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg leading-relaxed max-w-[420px]">
                             Showoff is a publishing hub designed for developers, creators, teachers, and technical learning enthusiasts. Share deep dives and track breakthroughs.
                         </p>
-                        <div className="flex items-center gap-4 mt-2">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-2">
                             <Link 
                                 to="/create" 
-                                className="flex items-center gap-2 bg-primary text-white px-6 py-3.5 rounded-xl font-bold text-[15px] shadow-lg shadow-primary/20 hover:brightness-105 active:scale-[0.98] transition-all"
+                                className="flex items-center justify-center gap-2 bg-primary text-white px-6 py-3.5 rounded-xl font-bold text-[15px] shadow-lg shadow-primary/20 hover:brightness-105 active:scale-[0.98] transition-all"
                             >
                                 Start Writing
                                 <span className="material-symbols-outlined text-lg">edit_note</span>
                             </Link>
                             <Link 
                                 to="/blogs" 
-                                className="border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-6 py-3.5 rounded-xl font-bold text-[15px] hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
+                                className="flex items-center justify-center border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 px-6 py-3.5 rounded-xl font-bold text-[15px] hover:bg-slate-50 dark:hover:bg-slate-900 transition-all"
                             >
                                 Explore Blogs
                             </Link>

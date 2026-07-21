@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-export const API_BASE_URL = 'http://localhost:9000/api/v1';
+export const API_BASE_URL = `http://${typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost'}:9000/api/v1`;
 
 export class ApiError extends Error {
     status: number;
@@ -19,6 +19,9 @@ const apiClient = axios.create({
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },
 });
 
@@ -94,6 +97,8 @@ export const BlogApi = {
     testAiPrompt: (data: { title: string }) => apiClient.post('/blogs/test-ai-prompt', data),
     getAnalytics: () => apiClient.get('/blogs/analytics'),
     getCategoryCounts: () => apiClient.get('/blogs/category-counts'),
+    toggleLike: (id: string | number) => apiClient.post(`/blogs/${id}/like`),
+    getLikes: (id: string | number) => apiClient.get(`/blogs/${id}/likes`),
 };
 
 export const ProjectApi = {
