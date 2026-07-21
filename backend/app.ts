@@ -8,6 +8,7 @@ import userRoutes from "./routes/user.routes.ts";
 import blogRoutes from "./routes/blog.routes.ts";
 import projectRoutes from "./routes/project.routes.ts";
 import bookmarkRoutes from "./routes/bookmark.routes.ts";
+import commentRoutes from "./routes/comment.routes.ts";
 import cookieParser from "cookie-parser";
 import "./model/associations.ts";
 
@@ -29,6 +30,8 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/blogs", blogRoutes);
 app.use("/api/v1/projects", projectRoutes);
 app.use("/api/v1/bookmarks", bookmarkRoutes);
+app.use("/api/v1/comments", commentRoutes);
+
 // Global Error Handler
 app.use(error);
 

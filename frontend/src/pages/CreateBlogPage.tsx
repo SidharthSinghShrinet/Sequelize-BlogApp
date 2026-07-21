@@ -23,7 +23,8 @@ const toolTitles: Record<string, string> = {
     'link': 'Insert Link',
     'image': 'Insert Web Image URL',
     'upload': 'Upload Local Image',
-    'code': 'Code Block'
+    'code': 'Inline Code',
+    'terminal': 'Code Block (Multi-line)'
 };
 
 const blogSchema = z.object({
@@ -205,11 +206,48 @@ const CreateBlogPage = () => {
                 break;
             }
             case 'code':
-                editor.chain().focus().toggleCodeBlock().run();
+            case 'terminal':
+                toggleSmartCodeBlock(editor);
                 break;
             default:
                 break;
         }
+    };
+
+    const toggleSmartCodeBlock = (ed: any) => {
+        if (!ed) return;
+        if (ed.isActive('codeBlock')) {
+            ed.chain().focus().toggleCodeBlock().run();
+            return;
+        }
+
+        const { selection } = ed.state;
+        const { $from, $to, from, to } = selection;
+
+        if (from === to) {
+            ed.chain().focus().toggleCodeBlock().run();
+            return;
+        }
+
+        try {
+            const blockFrom = Math.min($from.before(1), $from.pos);
+            const blockTo = Math.max($to.after(1), $to.pos);
+
+            const selectedText = ed.state.doc.textBetween(blockFrom, blockTo, '\n');
+            if (selectedText && selectedText.trim()) {
+                const textNode = ed.schema.text(selectedText);
+                const codeBlockNode = ed.schema.nodes.codeBlock.create(null, textNode);
+
+                const tr = ed.state.tr.replaceWith(blockFrom, blockTo, codeBlockNode);
+                ed.view.dispatch(tr);
+                ed.commands.focus();
+                return;
+            }
+        } catch (err) {
+            console.error("Smart code block transaction error:", err);
+        }
+
+        ed.chain().focus().toggleCodeBlock().run();
     };
 
     const isFormatActive = (type: string) => {
@@ -230,6 +268,7 @@ const CreateBlogPage = () => {
             case 'upload':
                 return false;
             case 'code':
+            case 'terminal':
                 return editor.isActive('codeBlock');
             default:
                 return false;
@@ -316,7 +355,7 @@ const CreateBlogPage = () => {
 
                     <div className="flex flex-col rounded-lg border border-outline-variant/30 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
                         <div className="flex items-center gap-xs p-2 bg-surface-container-high dark:bg-slate-900 border-b dark:border-slate-800">
-                            {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code'].map(tool => {
+                            {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code', 'terminal'].map(tool => {
                                 const active = isFormatActive(tool);
                                 return (
                                     <button
@@ -336,20 +375,133 @@ const CreateBlogPage = () => {
                         </div>
                         <div className="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder:text-on-surface-variant/50 dark:placeholder:text-slate-500 relative">
                             {editor && (
-                                <BubbleMenu
-                                    editor={editor}
-                                    shouldShow={({ editor }) => editor.isActive('image')}
-                                    className="flex bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-700 rounded-lg overflow-hidden shadow-lg p-1"
-                                >
-                                    <button
-                                        type="button"
-                                        onClick={() => editor.chain().focus().deleteSelection().run()}
-                                        className="px-2.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded transition-colors flex items-center gap-1"
+                                <>
+                                    {/* Floating Text Selection Bar */}
+                                    <BubbleMenu
+                                        editor={editor}
+                                        shouldShow={({ editor, state }) => {
+                                            const { from, to } = state.selection;
+                                            return from !== to && !editor.isActive('image');
+                                        }}
+                                        className="flex items-center gap-1 bg-slate-900/90 dark:bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-xl shadow-2xl p-1.5 z-50 text-white animate-in fade-in zoom-in duration-150"
                                     >
-                                        <span className="material-symbols-outlined text-[14px]">delete</span>
-                                        Delete Image
-                                    </button>
-                                </BubbleMenu>
+                                        <button
+                                            type="button"
+                                            onClick={() => editor.chain().focus().toggleBold().run()}
+                                            title="Bold"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('bold')
+                                                    ? 'bg-primary text-white font-bold'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">format_bold</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => editor.chain().focus().toggleItalic().run()}
+                                            title="Italic"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('italic')
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">format_italic</span>
+                                        </button>
+
+                                        <div className="w-[1px] h-4 bg-slate-700 mx-0.5" />
+
+                                        <button
+                                            type="button"
+                                            onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                                            title="Heading 1"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('heading', { level: 1 })
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">format_h1</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                                            title="Heading 2"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('heading', { level: 2 })
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">format_h2</span>
+                                        </button>
+
+                                        <div className="w-[1px] h-4 bg-slate-700 mx-0.5" />
+
+                                        <button
+                                            type="button"
+                                            onClick={() => toggleSmartCodeBlock(editor)}
+                                            title="Code Block"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('codeBlock')
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">code</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                const url = window.prompt('Enter URL:');
+                                                if (url && url.trim()) {
+                                                    editor.chain().focus().setLink({ href: url }).run();
+                                                }
+                                            }}
+                                            title="Insert Link"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('link')
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">link</span>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                                            title="Blockquote"
+                                            className={`p-1.5 rounded-lg transition-colors flex items-center justify-center ${
+                                                editor.isActive('blockquote')
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                            }`}
+                                        >
+                                            <span className="material-symbols-outlined text-[18px]">format_quote</span>
+                                        </button>
+                                    </BubbleMenu>
+
+                                    {/* Image Selection Bubble Menu */}
+                                    <BubbleMenu
+                                        editor={editor}
+                                        shouldShow={({ editor }) => editor.isActive('image')}
+                                        className="flex bg-slate-900 dark:bg-slate-800 border border-slate-700 dark:border-slate-700 rounded-lg overflow-hidden shadow-lg p-1"
+                                    >
+                                        <button
+                                            type="button"
+                                            onClick={() => editor.chain().focus().deleteSelection().run()}
+                                            className="px-2.5 py-1.5 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded transition-colors flex items-center gap-1"
+                                        >
+                                            <span className="material-symbols-outlined text-[14px]">delete</span>
+                                            Delete Image
+                                        </button>
+                                    </BubbleMenu>
+                                </>
                             )}
                             <EditorContent editor={editor} />
                         </div>

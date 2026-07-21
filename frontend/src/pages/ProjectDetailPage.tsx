@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
 import ProjectTimeline from '../components/ProjectTimeline';
+import CommentSection from '../components/CommentSection';
 import { ProjectApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -227,6 +228,9 @@ const ProjectDetailPage = () => {
                         <ProjectTimeline devlogs={project.devlogs || []} />
                     </div>
                 </div>
+
+                {/* Developer Discussions & Comments */}
+                <CommentSection targetType="project" targetId={project.id} authorId={project.ownerId} />
             </main>
 
             {/* Footer */}

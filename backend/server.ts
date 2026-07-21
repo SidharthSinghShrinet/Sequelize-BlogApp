@@ -67,20 +67,20 @@ async function cleanupDuplicateIndexes() {
     const [indexes] = await sequelize.query("SHOW INDEX FROM users");
     const indexNames = new Set((indexes as any[]).map(idx => idx.Key_name));
     const seenBase = new Set<string>();
-    
+
     for (const keyName of indexNames) {
       if (keyName === "PRIMARY") continue;
-      
+
       const isEmailKey = keyName.startsWith("email") || keyName.includes("email");
       const isUsernameKey = keyName.startsWith("username") || keyName.includes("username");
       const isPhoneKey = keyName.startsWith("phoneNumber") || keyName.includes("phone");
-      
+
       if (isEmailKey || isUsernameKey || isPhoneKey) {
         let baseType = "";
         if (isEmailKey) baseType = "email";
         else if (isUsernameKey) baseType = "username";
         else baseType = "phoneNumber";
-        
+
         // If we've already kept one index for this column, drop the duplicate
         if (seenBase.has(baseType)) {
           console.log(`🗑️ Dropping redundant index key: "${keyName}"`);

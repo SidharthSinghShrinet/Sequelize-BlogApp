@@ -120,3 +120,12 @@ export const BookmarkApi = {
     toggleBookmark: (data: { blogId?: number; projectId?: number }) => apiClient.post('/bookmarks/toggle', data),
     getBookmarks: () => apiClient.get('/bookmarks'),
 };
+
+export const CommentApi = {
+    createComment: (data: { content: string; blogId?: number; projectId?: number; parentId?: number }) =>
+        apiClient.post('/comments', data),
+    getBlogComments: (blogId: string | number) => apiClient.get(`/comments/blog/${blogId}`),
+    getProjectComments: (projectId: string | number) => apiClient.get(`/comments/project/${projectId}`),
+    deleteComment: (id: number) => apiClient.delete(`/comments/${id}`),
+};
+

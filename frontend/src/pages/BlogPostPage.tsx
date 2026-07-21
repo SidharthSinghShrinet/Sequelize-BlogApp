@@ -5,6 +5,7 @@ import Footer from '../components/Footer';
 import { BlogApi } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useBlog, getBlogImageUrl, calculateReadingTime } from '../hooks/useBlogs';
+import CommentSection from '../components/CommentSection';
 import toast from 'react-hot-toast';
 
 const BlogPostPage = () => {
@@ -104,16 +105,17 @@ const BlogPostPage = () => {
                         <img className="w-full h-[400px] object-cover rounded-xl shadow-lg" src={getBlogImageUrl(blog.content, blog.title, blog.id, blog.thumbnail)} alt={blog.title} />
                     </figure>
                     <div 
-                        className="font-body-lg text-slate-800 dark:text-slate-250 prose dark:prose-invert max-w-none leading-relaxed font-normal"
+                        className="font-body-lg text-slate-800 dark:text-slate-200 prose dark:prose-invert max-w-none leading-relaxed font-normal"
                         dangerouslySetInnerHTML={{ __html: blog.content }}
                     />
                     <div className="mt-xl flex justify-between py-sm border-y border-outline-variant dark:border-slate-800 text-slate-600 dark:text-slate-400">
                         <div className="flex gap-sm">
                             <button className="flex items-center gap-2 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined">favorite</span> 0</button>
-                            <button className="flex items-center gap-2 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined">chat_bubble</span> 0</button>
+                            <button className="flex items-center gap-2 hover:text-primary dark:hover:text-indigo-400"><span className="material-symbols-outlined">chat_bubble</span> Comments</button>
                         </div>
                         <button className="flex items-center gap-2 border border-slate-200 dark:border-slate-800 px-3 py-1.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"><span className="material-symbols-outlined">share</span> Share</button>
                     </div>
+                    <CommentSection targetType="blog" targetId={blog.id} authorId={blog.author} />
                 </article>
             </main>
             <Footer />
