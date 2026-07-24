@@ -77,7 +77,7 @@ The backend follows a layered architecture: **Routes → Middleware → Controll
 | **JOSE**                  | 6.x      | JWT signing (`SignJWT`) and verification (`jwtVerify`) |
 | **Cloudinary**            | 2.x      | Cloud-based image hosting SDK                 |
 | **Multer**                | 2.x      | `multipart/form-data` parsing with memory storage |
-| **Nodemailer**            | 9.x      | Email transport (password reset)              |
+| **Resend & React Email**   | 6.x / 1.x| Email transport & TSX templating (password reset) |
 | **node-cron**             | 4.x      | Scheduled background job runner               |
 | **Morgan**                | 1.x      | HTTP request logging middleware               |
 | **express-async-handler** | 1.x      | Wraps async route handlers for error propagation |
@@ -141,7 +141,7 @@ Accepts `email` and `password`. Verifies credentials using `Bun.password.verify(
 - **Delete Me** (`DELETE /api/v1/users/delete`): Soft-deletes by setting `isActive = false` and renaming the username/email to `deleted_{username}_{id}` / `deleted_{username}_{id}@deleted.com`. Clears the auth cookie.
 
 #### Password Reset Flow
-1. **Forgot Password** (`POST /api/v1/users/forgot-password`): Accepts `email`. Generates a 32-byte random token via `crypto.randomBytes()`, hashes it with SHA-256, and stores the hash + 5-minute expiry in the database. Sends an HTML email containing a reset link (pointing to `FRONTEND_URL/reset-password?token=...`) using Nodemailer. Falls back to Ethereal test accounts if no SMTP credentials are configured.
+1. **Forgot Password** (`POST /api/v1/users/forgot-password`): Accepts `email`. Generates a 32-byte random token via `crypto.randomBytes()`, hashes it with SHA-256, and stores the hash + 5-minute expiry in the database. Renders a responsive React Email template (`ResetPasswordEmail.tsx`) and dispatches it via Resend API (`RESEND_API_KEY`).
 2. **Reset Password** (`POST /api/v1/users/reset-password`): Accepts `token`, `password`, `confirmPassword`. Hashes the incoming token with SHA-256, finds the matching user where the token hash matches and the expiry is still valid, then updates the password and clears the reset fields.
 
 #### Public Profile (`GET /api/v1/users/profile/:username`)
@@ -843,7 +843,7 @@ Configures Multer with memory storage (files stored as `Buffer` in `req.file.buf
 | `utils/ApiResponse.utils.ts`  | `class ApiResponse`                             | Standardized response builder: `{ success, message, data?, meta? }` with `.send(res)` method |
 | `utils/category.utils.ts`     | `CATEGORY_KEYWORDS`, `getCategoryForBlog()`     | Keyword-based auto-categorization for blog content             |
 | `utils/cloudinary.utils.ts`   | `uploadBufferToCloudinary()`, `uploadStream()`  | Cloudinary image upload helpers (buffer → base64 → upload)     |
-| `utils/email.utils.ts`        | `sendResetPasswordEmail(email, resetUrl)`       | Sends HTML password reset email via Nodemailer (Ethereal fallback) |
+| `utils/email.utils.ts`        | `sendResetPasswordEmail(email, resetUrl)`       | Sends React Email template via Resend SDK                       |
 | `utils/errorHandler.utils.ts` | `class ErrorHandler`                            | Custom error class with `message` and `statusCode` fields       |
 | `utils/jwt.utils.ts`          | `generateToken(id)`                             | Creates HS256 JWT with 7-day expiry containing user ID          |
 
@@ -946,11 +946,10 @@ GITHUB_TOKEN=your_github_pat_token
 # ─── JWT Secret (optional, defaults to "default_secret_key")
 JWT_SECRET=your_secure_jwt_secret
 
-# ─── SMTP (optional, falls back to Ethereal test accounts) ─
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=your_smtp_username
-SMTP_PASS=your_smtp_password
+# ─── Resend Email Service ────────────────────────────────────
+RESEND_API_KEY=re_your_resend_api_key
+MAIL_FROM_EMAIL=onboarding@resend.dev
+MAIL_FROM_NAME=ShowOff
 ```
 
 ### Variable Descriptions
@@ -972,10 +971,9 @@ SMTP_PASS=your_smtp_password
 | `POLLINATIONS_API_KEY`    | No       | —                  | Pollinations AI API key (Mistral + Flux)                 |
 | `GITHUB_TOKEN`            | No       | —                  | GitHub personal access token (for README fetching)       |
 | `JWT_SECRET`              | No       | `default_secret_key` | Secret key for JWT signing                              |
-| `SMTP_HOST`               | No       | Ethereal test      | SMTP server hostname                                     |
-| `SMTP_PORT`               | No       | Ethereal test      | SMTP server port                                         |
-| `SMTP_USER`               | No       | Ethereal test      | SMTP username                                            |
-| `SMTP_PASS`               | No       | Ethereal test      | SMTP password                                            |
+| `RESEND_API_KEY`          | Yes      | —                  | Resend API key for sending emails                        |
+| `MAIL_FROM_EMAIL`         | No       | `onboarding@resend.dev` | Sender email address for Resend                          |
+| `MAIL_FROM_NAME`          | No       | `ShowOff`          | Sender display name for emails                           |
 
 ---
 
@@ -1076,7 +1074,7 @@ backend/
 │   ├── ApiResponse.utils.ts   Standardized API response class
 │   ├── category.utils.ts      Keyword-based blog categorization
 │   ├── cloudinary.utils.ts    Cloudinary upload helpers (buffer and stream)
-│   ├── email.utils.ts         Nodemailer password reset email sending
+│   ├── email.utils.ts         Resend SDK email sending with React Email templates
 │   ├── errorHandler.utils.ts  Custom HTTP error class
 │   └── jwt.utils.ts           JWT token generation (JOSE SignJWT)
 ├── app.ts                     Express app setup and configuration

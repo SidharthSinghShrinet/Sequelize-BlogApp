@@ -14,7 +14,6 @@ const forgotPasswordSchema = z.object({
 type ForgotPasswordFormValues = z.infer<typeof forgotPasswordSchema>;
 
 const ForgotPasswordPage = () => {
-    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [emailSent, setEmailSent] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ForgotPasswordFormValues>({
@@ -23,13 +22,9 @@ const ForgotPasswordPage = () => {
 
     const onSubmit = async (data: ForgotPasswordFormValues) => {
         try {
-            setPreviewUrl(null);
-            const response: any = await UserApi.forgotPassword(data.email);
+            await UserApi.forgotPassword(data.email);
             setEmailSent(true);
-            toast.success('Reset link generated successfully!');
-            if (response.data && response.data.previewUrl) {
-                setPreviewUrl(response.data.previewUrl);
-            }
+            toast.success('Reset link dispatched successfully!');
         } catch (err: any) {
             toast.error(err instanceof ApiError ? err.message : 'Failed to generate reset link.');
         }
@@ -77,23 +72,12 @@ const ForgotPasswordPage = () => {
                                 </p>
                             </div>
 
-                            {previewUrl && (
-                                <div className="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-100 dark:border-slate-800 space-y-2">
-                                    <span className="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase">Ethereal Local Sandbox</span>
-                                    <p className="text-[11px] text-slate-500 leading-relaxed">
-                                        For local testing, we have sent the email via Ethereal Mail. Click below to view the sandboxed inbox and reset link:
-                                    </p>
-                                    <a
-                                        href={previewUrl}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center justify-center gap-1.5 w-full bg-indigo-50 hover:bg-indigo-100 text-primary hover:text-indigo-700 text-xs font-bold py-2 px-4 rounded-md border border-indigo-100 transition-colors mt-1"
-                                    >
-                                        <span className="material-symbols-outlined text-sm">open_in_new</span>
-                                        Open Ethereal Mail Preview
-                                    </a>
-                                </div>
-                            )}
+                            <div className="p-4 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-lg border border-indigo-100 dark:border-indigo-900/40 space-y-1">
+                                <span className="text-[10px] font-extrabold tracking-wider text-indigo-500 dark:text-indigo-400 uppercase">Resend Email Service</span>
+                                <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-relaxed">
+                                    A password reset link has been dispatched to your email address via Resend. Please check your inbox (and spam folder) to proceed.
+                                </p>
+                            </div>
 
                             <Link
                                 to="/login"

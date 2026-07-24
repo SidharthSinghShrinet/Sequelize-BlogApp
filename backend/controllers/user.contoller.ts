@@ -99,10 +99,12 @@ const loginUser = expressAsyncHandler(
     if (!token) {
       throw new ErrorHandler("Failed to generate token", 500);
     }
+    const isSecure = process.env.NODE_ENV === "production" && (req.secure || req.headers["x-forwarded-proto"] === "https");
+
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isSecure,
+      sameSite: isSecure ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     new ApiResponse(200, true, "Login successful").send(res);
@@ -111,10 +113,12 @@ const loginUser = expressAsyncHandler(
 
 const logoutUser = expressAsyncHandler(
   async (req: express.Request, res: express.Response): Promise<any> => {
+    const isSecure = process.env.NODE_ENV === "production" && (req.secure || req.headers["x-forwarded-proto"] === "https");
+
     res.clearCookie("token", {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+      secure: isSecure,
+      sameSite: isSecure ? "none" : "lax",
     });
     new ApiResponse(200, true, "User logged out successfully").send(res);
   },
@@ -246,10 +250,10 @@ const forgotPassword = expressAsyncHandler(async (req: express.Request, res: exp
 
   // Generate plain random token
   const token = crypto.randomBytes(32).toString("hex");
-  
+
   // Hash the token to store securely in database
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-  
+
   // Save hash & expiry (5 minutes)
   user.setDataValue("resetPasswordToken", hashedToken);
   user.setDataValue("resetPasswordTokenExpiry", new Date(Date.now() + 5 * 60 * 1000));
@@ -260,18 +264,10 @@ const forgotPassword = expressAsyncHandler(async (req: express.Request, res: exp
   const resetPasswordURL = `${frontendUrl}/reset-password?token=${token}`;
 
   try {
-    // Send email using Nodemailer utility
-    const previewUrl = await sendResetPasswordEmail(email, resetPasswordURL);
-    
-    // If ethereal test account was used, log the preview URL in console
-    if (previewUrl) {
-      console.log("\n========================================================");
-      console.log(`✉️  [PASSWORD RESET] Email sent successfully to ${email}`);
-      console.log(`🔗  Preview Inbox URL: ${previewUrl}`);
-      console.log("========================================================\n");
-    }
-    
-    new ApiResponse(200, true, "Password reset link has been sent to your email address.", { previewUrl }).send(res);
+    // Send password reset email via Resend SDK & React Email
+    const emailId = await sendResetPasswordEmail(email, resetPasswordURL);
+
+    new ApiResponse(200, true, "Password reset link has been sent to your email address.", { emailId }).send(res);
   } catch (emailError: any) {
     // If mailer fails, clear database fields and throw error
     user.setDataValue("resetPasswordToken", null);

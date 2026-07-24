@@ -113,8 +113,7 @@ async function startConnection() {
     // 3. Backfill category columns for any existing blogs
     await backfillCategories();
     // 4. Start Server
-    app.listen(process.env.PORT, (err) => {
-      if (err) throw err;
+    app.listen(process.env.PORT, () => {
       console.log("✅ Server is running on port: " + process.env.PORT);
       initCronJobs();
     });
