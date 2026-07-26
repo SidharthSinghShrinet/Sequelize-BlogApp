@@ -52,7 +52,15 @@ export const sendResetPasswordEmail = async (
 
     if (error) {
       console.error("❌ Resend Email Delivery Error:", error);
-      throw new Error(`Failed to send email via Resend: ${error.message}`);
+      console.log("\n========================================================");
+      console.log(`📨 [DEV/TEST LINK] Reset Password URL for ${email}:`);
+      console.log(`🔗  ${resetUrl}`);
+      console.log("========================================================\n");
+
+      if (process.env.NODE_ENV === "production") {
+        throw new Error(`Failed to send email via Resend: ${error.message}`);
+      }
+      return "dev-fallback-id";
     }
 
     console.log("\n========================================================");
@@ -63,6 +71,14 @@ export const sendResetPasswordEmail = async (
     return data?.id || "";
   } catch (err: any) {
     console.error("❌ Exception during Resend email dispatch:", err.message || err);
-    throw err;
+    console.log("\n========================================================");
+    console.log(`📨 [DEV/TEST LINK] Reset Password URL for ${email}:`);
+    console.log(`🔗  ${resetUrl}`);
+    console.log("========================================================\n");
+
+    if (process.env.NODE_ENV === "production") {
+      throw err;
+    }
+    return "dev-fallback-id";
   }
 };

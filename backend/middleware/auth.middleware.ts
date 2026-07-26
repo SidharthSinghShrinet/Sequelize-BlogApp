@@ -18,13 +18,19 @@ const authenticate = async (
   res: express.Response,
   next: express.NextFunction,
 ): Promise<void> => {
-  const token = req?.cookies?.token || req.headers["cookie"]?.split("=")[1];
+  const cookieHeader = req.headers["cookie"];
+  const headerToken = cookieHeader
+    ?.split("; ")
+    .find((row) => row.startsWith("token="))
+    ?.split("=")[1];
+
+  const token = req.cookies?.token || headerToken;
   if (!token) {
     throw new ErrorHandler("Unauthorized, Please log in!", 401);
   }
   const decodedToken = await jwtVerify(
     token,
-    new TextEncoder().encode(process.env.JWT_SECRET || "default_secret_key"),
+    new TextEncoder().encode(process.env.JWT_SECRET!),
   );
   if (!decodedToken) {
     throw new ErrorHandler("Invalid token, Please log in again!", 401);

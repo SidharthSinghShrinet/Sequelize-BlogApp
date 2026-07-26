@@ -10,7 +10,7 @@ const Footer = () => (
                 <a href="#" className="text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-indigo-400 text-label-md">Terms of Service</a>
                 <a href="#" className="text-on-surface-variant dark:text-slate-400 hover:text-primary dark:hover:text-indigo-400 text-label-md">Contact</a>
             </nav>
-            <div className="text-secondary dark:text-slate-500 opacity-80 text-label-md">© 2024 ShowOff. All rights reserved.</div>
+            <div className="text-secondary dark:text-slate-500 opacity-80 text-label-md">© {new Date().getFullYear()} ShowOff. All rights reserved.</div>
         </div>
     </footer>
 );

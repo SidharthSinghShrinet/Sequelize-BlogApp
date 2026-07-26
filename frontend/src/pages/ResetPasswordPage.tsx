@@ -62,7 +62,7 @@ const ResetPasswordPage = () => {
     }
 
     return (
-        <div className="h-screen overflow-hidden flex bg-background dark:bg-slate-955 transition-colors duration-300">
+        <div className="h-screen overflow-hidden flex bg-background dark:bg-slate-950 transition-colors duration-300">
             {/* Left Decorative/Branding Sidebar */}
             <div className="hidden lg:flex lg:w-1/2 h-full relative overflow-hidden bg-slate-900 justify-center items-center">
                 <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-slate-900 to-indigo-950 z-0" />
@@ -87,20 +87,20 @@ const ResetPasswordPage = () => {
                     </div>
 
                     <div className="mb-6 text-center lg:text-left">
-                        <h2 className="text-3xl font-extrabold tracking-tight text-on-background dark:text-white">Create new password</h2>
-                        <p className="text-on-surface-variant dark:text-slate-400 mt-2 text-sm">Please set your new password below.</p>
+                        <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">Create new password</h2>
+                        <p className="text-slate-600 dark:text-slate-400 mt-2 text-sm">Please set your new password below.</p>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 bg-white text-slate-955 shadow-sm dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 p-5 md:p-6">
+                    <div className="rounded-xl border border-slate-200 bg-white text-slate-950 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-50 p-5 md:p-6">
                         <form className="space-y-3" onSubmit={handleSubmit(onSubmit)}>
                             {/* Password Input */}
                             <div className="space-y-1 text-left">
-                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                                     New Password
                                 </label>
                                 <div className="relative">
                                     <input
-                                        className={`flex h-9 w-full rounded-md border bg-transparent pl-3 pr-10 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.password
+                                        className={`flex h-9 w-full rounded-md border bg-transparent pl-3 pr-10 py-1 text-sm ring-offset-background placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.password
                                                 ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900'
                                                 : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
                                             }`}
@@ -111,7 +111,7 @@ const ResetPasswordPage = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
                                     >
                                         <span className="material-symbols-outlined text-base">
                                             {showPassword ? 'visibility_off' : 'visibility'}
@@ -123,12 +123,12 @@ const ResetPasswordPage = () => {
 
                             {/* Confirm Password Input */}
                             <div className="space-y-1 text-left">
-                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-550 dark:text-slate-400">
+                                <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600 dark:text-slate-400">
                                     Confirm Password
                                 </label>
                                 <div className="relative">
                                     <input
-                                        className={`flex h-9 w-full rounded-md border bg-transparent pl-3 pr-10 py-1 text-sm ring-offset-background placeholder:text-slate-550 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.confirmPassword
+                                        className={`flex h-9 w-full rounded-md border bg-transparent pl-3 pr-10 py-1 text-sm ring-offset-background placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${errors.confirmPassword
                                                 ? 'border-red-500 focus-visible:ring-red-500 dark:border-red-900 dark:focus-visible:ring-red-900'
                                                 : 'border-slate-200 focus-visible:ring-slate-950 dark:border-slate-800 dark:focus-visible:ring-slate-300'
                                             }`}
@@ -139,7 +139,7 @@ const ResetPasswordPage = () => {
                                     <button
                                         type="button"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-655 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors flex items-center justify-center"
                                     >
                                         <span className="material-symbols-outlined text-base">
                                             {showConfirmPassword ? 'visibility_off' : 'visibility'}
@@ -152,7 +152,7 @@ const ResetPasswordPage = () => {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="inline-flex items-center text-white justify-center rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-555 hover:bg-slate-900/90 h-9 px-4 py-1 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 w-full mt-4"
+                                className="inline-flex items-center justify-center rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-slate-900 text-slate-50 hover:bg-slate-900/90 h-9 px-4 py-1 dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-50/90 w-full mt-4"
                             >
                                 {isSubmitting ? 'Resetting Password...' : 'Reset Password'}
                             </button>

@@ -4,7 +4,24 @@ import media from "../model/media.model";
 import cloudinary from "./cloudinary";
 
 export const initCronJobs = () => {
-    // Run daily at midnight: "0 0 * * *"
+    // 1. Keep-Alive Ping (Runs every 14 minutes to prevent Render free-tier cold starts)
+    cron.schedule("*/14 * * * *", async () => {
+        const backendUrl = process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 9000}`;
+        const healthUrl = `${backendUrl.replace(/\/$/, "")}/api/v1/health`;
+        try {
+            console.log(`⏰ [Keep-Alive] Pinging health endpoint: ${healthUrl}`);
+            const response = await fetch(healthUrl);
+            if (response.ok) {
+                console.log("⚡ [Keep-Alive] Server is active and awake.");
+            } else {
+                console.warn(`⚠️ [Keep-Alive] Ping returned status ${response.status}`);
+            }
+        } catch (err: any) {
+            console.error("❌ [Keep-Alive] Ping error:", err.message || err);
+        }
+    });
+
+    // 2. Run daily at midnight: "0 0 * * *"
     cron.schedule("0 0 * * *", async () => {
         console.log("⏰ Running scheduled cron job: cleaning up orphaned blog images...");
         

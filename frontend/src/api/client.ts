@@ -1,6 +1,14 @@
 import axios, { AxiosError } from 'axios';
 
-export const API_BASE_URL = `http://${typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost'}:9000/api/v1`;
+const getApiBaseUrl = () => {
+    if (import.meta.env.VITE_API_BASE_URL && import.meta.env.MODE === 'production') {
+        return import.meta.env.VITE_API_BASE_URL;
+    }
+    const host = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
+    return `http://${host}:9000/api/v1`;
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export class ApiError extends Error {
     status: number;
