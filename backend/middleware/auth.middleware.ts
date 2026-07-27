@@ -18,13 +18,8 @@ const authenticate = async (
   res: express.Response,
   next: express.NextFunction,
 ): Promise<void> => {
-  const cookieHeader = req.headers["cookie"];
-  const headerToken = cookieHeader
-    ?.split("; ")
-    .find((row) => row.startsWith("token="))
-    ?.split("=")[1];
-
-  const token = req.cookies?.token || headerToken;
+  const token = req?.cookies?.token || req?.headers?.authorization?.split(" ")[1];
+  console.log(token)
   if (!token) {
     throw new ErrorHandler("Unauthorized, Please log in!", 401);
   }
