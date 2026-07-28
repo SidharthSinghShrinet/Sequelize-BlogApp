@@ -112,7 +112,7 @@ const RegisterPage = () => {
                     <div className="pt-8 border-t border-slate-800">
                         <div className="bg-slate-800/40 backdrop-blur-md border border-slate-700/30 rounded-xl p-5">
                             <p className="text-slate-300 italic text-sm leading-relaxed">
-                                "ShowOff4U has completely transformed how I document my learning progress. The interface is clean, developer-focused, and exceptionally quick."
+                                "ShowOff has completely transformed how I document my learning progress. The interface is clean, developer-focused, and exceptionally quick."
                             </p>
                             <div className="mt-4 flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center font-bold text-xs">SM</div>

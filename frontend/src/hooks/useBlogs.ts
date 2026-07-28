@@ -212,7 +212,7 @@ export const generateSvgThumbnail = (title: string, content: string) => {
         <text x="50" y="160" font-size="120" class="decor">{ }</text>
         
         <!-- Header Tag -->
-        <text x="80" y="90" class="tag">SHOWOFF4U PUBLICATION</text>
+        <text x="80" y="90" class="tag">SHOWOFF PUBLICATION</text>
         
         <!-- Title Lines -->
         <text x="80" y="165" class="title">${line1}</text>

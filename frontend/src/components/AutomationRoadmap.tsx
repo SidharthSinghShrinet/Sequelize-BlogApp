@@ -163,7 +163,7 @@ const AutomationRoadmap = () => {
                     Inside the Engine: Platform Automation
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm max-w-lg">
-                    Click through the pipeline stages below to see how ShowOff4U manages content styling, AI design decisions, and database optimizations behind the scenes.
+                    Click through the pipeline stages below to see how Showoff manages content styling, AI design decisions, and database optimizations behind the scenes.
                 </p>
             </div>
 

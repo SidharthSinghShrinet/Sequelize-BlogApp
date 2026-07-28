@@ -10,7 +10,7 @@ const AboutHero = () => {
                 A Publishing Workspace Built for Technical Minds.
             </h1>
             <p className="text-slate-600 dark:text-slate-300 text-lg leading-relaxed font-normal">
-                ShowOff4U is more than just a writing platform. It is a highly optimized, automated ecosystem engineered to let developers, teachers, and creators document their breakthroughs without worrying about layout design, image styling, or database cruft.
+                Showoff is more than just a writing platform. It is a highly optimized, automated ecosystem engineered to let developers, teachers, and creators document their breakthroughs without worrying about layout design, image styling, or database cruft.
             </p>
         </section>
     );

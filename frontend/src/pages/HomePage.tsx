@@ -76,11 +76,11 @@ const HomePage = () => {
                                 Share.
                             </h1>
                             <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold font-serif tracking-tight text-primary leading-[1.08]">
-                                ShowOff4U.
+                                Showoff.
                             </h1>
                         </div>
                         <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg leading-relaxed max-w-[420px]">
-                            ShowOff4U is a publishing hub designed for developers, creators, teachers, and technical learning enthusiasts. Share deep dives and track breakthroughs.
+                            Showoff is a publishing hub designed for developers, creators, teachers, and technical learning enthusiasts. Share deep dives and track breakthroughs.
                         </p>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mt-2">
                             <Link 
@@ -121,12 +121,12 @@ const HomePage = () => {
                                 <div className="relative group overflow-hidden">
                                     <img 
                                         src="/hero_mockup.png" 
-                                        alt="ShowOff4U Platform Dashboard" 
+                                        alt="ShowOff Platform Dashboard" 
                                         className="w-full h-auto object-cover aspect-[4/3] object-top"
                                     />
                                     <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">
                                         <span className="bg-primary px-3 py-1 rounded-full text-xs font-semibold self-start tracking-wider uppercase text-white">Interactive Platform</span>
-                                        <h3 className="text-lg font-bold text-white">ShowOff4U Blog Portal</h3>
+                                        <h3 className="text-lg font-bold text-white">ShowOff Blog Portal</h3>
                                         <p className="text-slate-300 text-xs font-medium">Read and share ideas with developers, creators, and teachers.</p>
                                     </div>
                                 </div>
@@ -169,7 +169,7 @@ const HomePage = () => {
                                 <div className="relative group overflow-hidden">
                                     <img 
                                         src="/hero_dark_mockup.png" 
-                                        alt="ShowOff4U Dark Mode Layout" 
+                                        alt="ShowOff Dark Mode Layout" 
                                         className="w-full h-auto object-cover aspect-[4/3] object-top"
                                     />
                                     <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-slate-950/80 via-slate-950/40 to-transparent p-6 text-white flex flex-col gap-1">

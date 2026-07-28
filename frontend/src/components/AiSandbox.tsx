@@ -21,7 +21,7 @@ const AiSandbox = () => {
         setSandboxBrief('');
         setSandboxImageUrl('');
         setSandboxLogs([
-            `[SYSTEM] Connecting to ShowOff4U AI Proxy Server...`,
+            `[SYSTEM] Connecting to Showoff AI Proxy Server...`,
         ]);
 
         const appendLog = (msg: string, delay: number) => {

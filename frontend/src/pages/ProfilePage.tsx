@@ -127,7 +127,7 @@ const ProfilePage = () => {
                             className="hidden"
                         />
                         <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">{user.username}</h2>
-                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-wider">ShowOff4U Creator</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-wider">ShowOff Creator</p>
 
                         <div className="w-full border-t border-slate-50 dark:border-slate-800 my-6 pt-6 flex flex-col gap-4 text-left">
                             <div>
