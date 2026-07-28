@@ -105,7 +105,8 @@ const loginUser = expressAsyncHandler(
     res.cookie("token", token, {
       httpOnly: true,
       secure: isSecure,
-      sameSite: isSecure ? "none" : "lax",
+      sameSite: isSecure ? "lax" : "lax",
+      domain: process.env.COOKIE_DOMAIN,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
     new ApiResponse(200, true, "Login successful").send(res);
@@ -120,7 +121,8 @@ const logoutUser = expressAsyncHandler(
     res.clearCookie("token", {
       httpOnly: true,
       secure: isSecure,
-      sameSite: isSecure ? "none" : "lax",
+      sameSite: isSecure ? "lax" : "lax",
+      domain: process.env.COOKIE_DOMAIN,
     });
     new ApiResponse(200, true, "User logged out successfully").send(res);
   },
