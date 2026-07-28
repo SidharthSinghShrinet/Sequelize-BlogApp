@@ -66,7 +66,7 @@ const ProjectsPage = () => {
                 <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex flex-col gap-2">
                         <span className="font-mono text-[10px] font-bold text-primary dark:text-indigo-400 uppercase tracking-widest animate-pulse">
-                            Creative Portfolio // Showoff Directory
+                            Creative Portfolio // ShowOff4U Directory
                         </span>
                         <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                             The Project Hub

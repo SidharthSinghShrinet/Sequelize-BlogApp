@@ -99,7 +99,7 @@ const CategoryMesh: React.FC<CategoryMeshProps> = ({ counts, onSelectCategory })
                     );
                 })}
 
-                {/* Central SHOWOFF Reactor Core Hub */}
+                {/* Central SHOWOFF4U Reactor Core Hub */}
                 <g>
                     {/* Glowing outer core rings */}
                     <circle
@@ -134,7 +134,7 @@ const CategoryMesh: React.FC<CategoryMeshProps> = ({ counts, onSelectCategory })
                         textAnchor="middle"
                         className="font-mono text-[9px] font-extrabold tracking-widest text-slate-400 dark:text-slate-500 uppercase fill-current"
                     >
-                        Showoff Core
+                        ShowOff4U Core
                     </text>
                 </g>
 

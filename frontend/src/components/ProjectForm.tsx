@@ -131,7 +131,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ initialValues, onSubmit, isSu
                     id="p-title"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. showoff-portfolio" 
+                    placeholder="e.g. showoff4u-portfolio" 
                     className="input-field w-full rounded-xl px-4 py-3 text-sm outline-none"
                 />
                 {errors.title && <span className="text-[10px] font-bold text-rose-500">{errors.title}</span>}

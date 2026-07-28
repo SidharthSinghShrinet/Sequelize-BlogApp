@@ -53,7 +53,7 @@ const BlogPostPage = () => {
             try {
                 await navigator.share({
                     title: blog.title,
-                    text: `Check out "${blog.title}" on ShowOff!`,
+                    text: `Check out "${blog.title}" on ShowOff4U!`,
                     url: shareUrl,
                 });
                 return;

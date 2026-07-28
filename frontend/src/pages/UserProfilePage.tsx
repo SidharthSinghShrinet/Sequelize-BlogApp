@@ -98,7 +98,7 @@ const UserProfilePage = () => {
                         {/* Identity & Basic Info */}
                         <div className="flex-grow flex flex-col justify-center min-w-0">
                             <h2 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">{displayName}</h2>
-                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-wider font-mono">ShowOff Creator</p>
+                            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 uppercase font-bold tracking-wider font-mono">ShowOff4U Creator</p>
                             
                             <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4 text-xs text-slate-500 dark:text-slate-400 justify-center sm:justify-start">
                                 <div className="flex items-center gap-1.5">

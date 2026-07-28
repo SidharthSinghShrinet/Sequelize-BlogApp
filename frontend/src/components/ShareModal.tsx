@@ -80,7 +80,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ title, url, isOpen, onClose }) 
             name: 'WhatsApp',
             Icon: FaWhatsapp,
             color: 'bg-[#25D366] hover:bg-[#1da851] text-white',
-            shareUrl: `https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${title}" on ShowOff! ${shareUrl}`)}`
+            shareUrl: `https://api.whatsapp.com/send?text=${encodeURIComponent(`Check out "${title}" on ShowOff4U! ${shareUrl}`)}`
         },
         {
             name: 'Reddit',
