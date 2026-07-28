@@ -1,4 +1,5 @@
 import express from "express";
+import expressAsyncHandler from "express-async-handler";
 import ErrorHandler from "../utils/errorHandler.utils";
 import { jwtVerify } from "jose";
 import users from "../model/user.model";
@@ -13,13 +14,12 @@ declare global {
   }
 }
 
-const authenticate = async (
+const authenticate = expressAsyncHandler(async (
   req: express.Request,
   res: express.Response,
   next: express.NextFunction,
 ): Promise<void> => {
   const token = req?.cookies?.token || req?.headers?.authorization?.split(" ")[1];
-  console.log(token)
   if (!token) {
     throw new ErrorHandler("Unauthorized, Please log in!", 401);
   }
@@ -40,6 +40,6 @@ const authenticate = async (
   // console.log("Authenticated User:", user?.toJSON());
   req.user = user; // Attach the user object to the request for downstream use
   next();
-};
+});
 
 export default authenticate;

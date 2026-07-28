@@ -113,9 +113,9 @@ async function startConnection() {
     // 3. Backfill category columns for any existing blogs
     await backfillCategories();
     // 4. Start Server
-    const PORT = process.env.PORT || 9000;
-    app.listen(PORT, () => {
-      console.log("✅ Server is running on port: " + PORT);
+    const PORT = Number(process.env.PORT) || 9000;
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log("✅ Server is running on 0.0.0.0:" + PORT);
       initCronJobs();
     });
   } catch (e) {

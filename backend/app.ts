@@ -30,8 +30,22 @@ app.use(
 // CORS
 app.use(
   cors({
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    origin: (origin, callback) => {
+      // Allow server-to-server / Postman (no origin header)
+      if (!origin) return callback(null, true);
+      // Build allowed list from FRONTEND_URL env var (supports comma-separated values)
+      const allowed = (process.env.FRONTEND_URL ?? "")
+        .split(",")
+        .map((o) => o.trim())
+        .filter(Boolean);
+      // Allow exact match OR any *.vercel.app OR localhost
+      const ok =
+        allowed.includes(origin) ||
+        origin.endsWith(".vercel.app") ||
+        origin.includes("localhost");
+      callback(null, ok ? origin : false);
+    },
     credentials: true,
   }),
 );

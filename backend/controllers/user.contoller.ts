@@ -99,7 +99,8 @@ const loginUser = expressAsyncHandler(
     if (!token) {
       throw new ErrorHandler("Failed to generate token", 500);
     }
-    const isSecure = process.env.NODE_ENV === "production" && (req.secure || req.headers["x-forwarded-proto"] === "https");
+    const isProduction = process.env.NODE_ENV === "production";
+    const isSecure = isProduction || req.secure || req.headers["x-forwarded-proto"] === "https";
 
     res.cookie("token", token, {
       httpOnly: true,
@@ -113,7 +114,8 @@ const loginUser = expressAsyncHandler(
 
 const logoutUser = expressAsyncHandler(
   async (req: express.Request, res: express.Response): Promise<any> => {
-    const isSecure = process.env.NODE_ENV === "production" && (req.secure || req.headers["x-forwarded-proto"] === "https");
+    const isProduction = process.env.NODE_ENV === "production";
+    const isSecure = isProduction || req.secure || req.headers["x-forwarded-proto"] === "https";
 
     res.clearCookie("token", {
       httpOnly: true,
