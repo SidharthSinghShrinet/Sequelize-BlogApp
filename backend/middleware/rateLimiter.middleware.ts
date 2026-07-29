@@ -1,11 +1,12 @@
 import rateLimit from "express-rate-limit";
 
-// General Rate Limiter (100 requests per 15 minutes)
+// General Rate Limiter (300 requests per 15 minutes, skipping health checks)
 export const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit: 300,
   standardHeaders: "draft-8",
   legacyHeaders: false,
+  skip: (req) => req.path === "/health" || req.path === "/healthz" || req.path === "/",
   message: {
     status: 429,
     success: false,

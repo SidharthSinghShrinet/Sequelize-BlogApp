@@ -50,23 +50,32 @@ app.use(
   }),
 );
 
-app.use(morgan("dev"));
+app.use(
+  morgan("dev", {
+    skip: (req) => req.url === "/api/v1/health" || req.url === "/healthz" || req.url === "/",
+  })
+);
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Global Rate Limiter for all API routes
-app.use("/api/v1", globalLimiter);
-
-// Health Check Endpoint
-app.get("/api/v1/health", (_req, res) => {
+// Universal Health Check Endpoints (Placed BEFORE rate limiting so health checks never return 429)
+const healthHandler = (_req: express.Request, res: express.Response) => {
   res.status(200).json({
     status: "ok",
     message: "Server is healthy and active",
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
   });
+};
+
+app.get(["/", "/healthz", "/api/v1/health"], healthHandler);
+app.head(["/", "/healthz", "/api/v1/health"], (_req, res) => {
+  res.status(200).end();
 });
+
+// Global Rate Limiter for API data routes
+app.use("/api/v1", globalLimiter);
 
 // API Routes
 app.use("/api/v1/users", userRoutes);
