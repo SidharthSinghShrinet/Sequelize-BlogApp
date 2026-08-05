@@ -1,14 +1,10 @@
-# ShowOff4U - Technical Publishing & Developer Community Platform
+# ShowOff4U
 
-> ShowOff4U is an automated, high-performance publishing workspace for developers, creators, teachers, and technical learning enthusiasts.
+> ShowOff4U is an automated, high-performance publishing workspace for developers, creators, teachers, and technical learning enthusiasts to share deep dives and showcase project portfolios.
 
-## Core Features
-- Technical Markdown publishing with code syntax highlighting.
-- Automated AI-assisted article generation and image design prompts.
-- Developer project showcase and portfolio hub.
-- Bookmark, like, and rich community commenting systems.
+## Primary Resources
 
-## Primary Links
-- Website: https://www.showoff4u.in
-- Blogs Directory: https://www.showoff4u.in/blogs
-- Projects Hub: https://www.showoff4u.in/projects
+- [ShowOff4U Homepage](https://www.showoff4u.in/): Main publishing platform and developer hub.
+- [Technical Blogs Directory](https://www.showoff4u.in/blogs): Explore software engineering articles, tutorials, and technical deep dives.
+- [Developer Projects Showcase](https://www.showoff4u.in/projects): Browse community portfolios, GitHub projects, and open-source tools.
+- [About Platform](https://www.showoff4u.in/about): Learn about the ShowOff4U platform architecture, design system, and features.
