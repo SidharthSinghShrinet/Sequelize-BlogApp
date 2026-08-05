@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import SeoHead from '../components/SeoHead';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
 import { BlogApi } from '../api/client';
@@ -79,9 +80,22 @@ const BlogPostPage = () => {
     if (!blog) return null;
 
     const isAuthor = user && user.id === blog.author;
+    const blogImage = getBlogImageUrl(blog.content, blog.title, blog.id, blog.thumbnail);
 
     return (
         <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 transition-colors duration-300">
+            <SeoHead 
+                title={blog.title}
+                description={blog.content ? blog.content.replace(/<[^>]*>/g, '').substring(0, 160) : `Read ${blog.title} on ShowOff4U.`}
+                image={blogImage}
+                url={`https://www.showoff4u.in/post/${blog.id}`}
+                type="article"
+                articleData={{
+                    publishedTime: blog.createdAt,
+                    modifiedTime: blog.updatedAt || blog.createdAt,
+                    author: blog.authorDetails?.username || 'ShowOff4U Creator',
+                }}
+            />
             <div className="fixed top-0 left-0 h-1 bg-primary z-[60] w-full" style={{ transform: `scaleX(${progress / 100})`, transformOrigin: '0%' }}></div>
             <TopNavBar />
             <main className="max-w-container-max mx-auto px-gutter py-xl flex-grow w-full">
