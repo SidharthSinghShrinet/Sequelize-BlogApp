@@ -354,7 +354,7 @@ const CreateBlogPage = () => {
                     )}
 
                     <div className="flex flex-col rounded-lg border border-outline-variant/30 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
-                        <div className="flex items-center gap-xs p-2 bg-surface-container-high dark:bg-slate-900 border-b dark:border-slate-800">
+                        <div className="flex items-center gap-1 p-2 bg-surface-container-high dark:bg-slate-900 border-b dark:border-slate-800 overflow-x-auto no-scrollbar max-w-full">
                             {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code', 'terminal'].map(tool => {
                                 const active = isFormatActive(tool);
                                 return (
@@ -363,7 +363,7 @@ const CreateBlogPage = () => {
                                         key={tool}
                                         onClick={() => handleFormat(tool)}
                                         title={toolTitles[tool] || ''}
-                                        className={`p-2 rounded flex items-center justify-center transition-all ${active
+                                        className={`p-2 rounded shrink-0 flex items-center justify-center transition-all ${active
                                             ? 'bg-primary/20 text-primary dark:text-indigo-400'
                                             : 'text-slate-700 dark:text-slate-300 hover:bg-surface-variant dark:hover:bg-slate-800 hover:text-primary dark:hover:text-indigo-400'
                                             }`}
@@ -383,7 +383,7 @@ const CreateBlogPage = () => {
                                             const { from, to } = state.selection;
                                             return from !== to && !editor.isActive('image');
                                         }}
-                                        className="flex items-center gap-1 bg-slate-900/90 dark:bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-xl shadow-2xl p-1.5 z-50 text-white animate-in fade-in zoom-in duration-150"
+                                        className="flex items-center gap-1 bg-slate-900/90 dark:bg-slate-900/95 backdrop-blur-md border border-slate-700/80 rounded-xl shadow-2xl p-1.5 z-50 text-white animate-in fade-in zoom-in duration-150 max-w-[90vw] overflow-x-auto no-scrollbar"
                                     >
                                         <button
                                             type="button"
