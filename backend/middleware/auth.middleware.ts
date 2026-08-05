@@ -37,8 +37,33 @@ const authenticate = expressAsyncHandler(async (
     throw new ErrorHandler("User not foundS!", 404);
   }
 
-  // console.log("Authenticated User:", user?.toJSON());
   req.user = user; // Attach the user object to the request for downstream use
+  next();
+});
+
+export const optionalAuthenticate = expressAsyncHandler(async (
+  req: express.Request,
+  _res: express.Response,
+  next: express.NextFunction,
+): Promise<void> => {
+  try {
+    const token = req?.cookies?.token || req?.headers?.authorization?.split(" ")[1];
+    if (token) {
+      const decodedToken = await jwtVerify(
+        token,
+        new TextEncoder().encode(process.env.JWT_SECRET!),
+      );
+      if (decodedToken?.payload?.id) {
+        const userId = decodedToken.payload.id as number;
+        const user = await users.findByPk(userId);
+        if (user) {
+          req.user = user;
+        }
+      }
+    }
+  } catch (err) {
+    // Silently continue for optional auth
+  }
   next();
 });
 
