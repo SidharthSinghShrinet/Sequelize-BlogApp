@@ -51,12 +51,9 @@ const LibraryPage = () => {
     };
 
     useEffect(() => {
-        if (activeTab === 'publications') {
-            fetchMyBlogs();
-        } else if (activeTab === 'saved') {
-            fetchSavedItems();
-        }
-    }, [activeTab]);
+        fetchMyBlogs();
+        fetchSavedItems();
+    }, []);
 
     const handleDeleteBlog = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this blog post? This action cannot be undone.")) return;

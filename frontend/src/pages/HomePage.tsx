@@ -2,8 +2,9 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import TopNavBar from '../components/TopNavBar';
 import Footer from '../components/Footer';
-import { useAllBlogs, getBlogImageUrl, calculateReadingTime } from '../hooks/useBlogs';
+import { useAllBlogs } from '../hooks/useBlogs';
 import { Carousel } from 'antd';
+import BlogCard from '../components/BlogCard';
 
 const HomePage = () => {
     const { blogs, loading } = useAllBlogs();
@@ -12,33 +13,30 @@ const HomePage = () => {
     const defaultFeaturedBlogs = [
         {
             id: 1,
-            tag: 'TYPESCRIPT',
+            category: 'TYPESCRIPT',
             title: '5 Advanced TypeScript Patterns for Technical Creators',
             content: 'Level up your type safety with conditional types, template literal types, mapped types, and custom utility signatures.',
-            image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
-            author: 'Alex Morgan',
-            date: 'May 12, 2024',
-            readTime: '5 min read'
+            thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
+            authorDetails: { id: 1, username: 'Alex Morgan' },
+            createdAt: '2024-05-12T00:00:00.000Z'
         },
         {
             id: 2,
-            tag: 'TEACHING',
+            category: 'TEACHING',
             title: 'How to Structure Learning Paths for Software Engineering',
             content: 'Best practices for teachers and mentors designing interactive code challenges, sandbox labs, and visual learning aids.',
-            image: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
-            author: 'Sara Khan',
-            date: 'May 8, 2024',
-            readTime: '6 min read'
+            thumbnail: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop&q=80',
+            authorDetails: { id: 2, username: 'Sara Khan' },
+            createdAt: '2024-05-08T00:00:00.000Z'
         },
         {
             id: 3,
-            tag: 'DEV-OPS',
+            category: 'DEV-OPS',
             title: 'High-Performance Docker Layouts for Web Applications',
             content: 'A practical guide to multi-stage builds, custom package caching, and shrinking production image sizes by over 90%.',
-            image: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&auto=format&fit=crop&q=80',
-            author: 'James Lee',
-            date: 'May 5, 2024',
-            readTime: '4 min read'
+            thumbnail: 'https://images.unsplash.com/photo-1607799279861-4dd421887fb3?w=800&auto=format&fit=crop&q=80',
+            authorDetails: { id: 3, username: 'James Lee' },
+            createdAt: '2024-05-05T00:00:00.000Z'
         }
     ];
 
@@ -46,16 +44,7 @@ const HomePage = () => {
     const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     const displayBlogs = sortedBlogs.length > 0 
-        ? sortedBlogs.slice(0, 3).map((b) => ({
-            id: b.id,
-            tag: b.category ? b.category.toUpperCase() : 'TECHNICAL',
-            title: b.title,
-            content: b.content ? b.content.replace(/<[^>]*>?/gm, '').substring(0, 90) + '...' : '',
-            image: getBlogImageUrl(b.content, b.title, b.id, b.thumbnail),
-            author: b.authorDetails?.username || 'Creator',
-            date: new Date(b.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            readTime: `${calculateReadingTime(b.content || '')} min read`
-        }))
+        ? sortedBlogs.slice(0, 3)
         : defaultFeaturedBlogs;
 
     return (
@@ -243,53 +232,9 @@ const HomePage = () => {
                         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {displayBlogs.map((post) => (
-                            <Link 
-                                to={`/post/${post.id}`} 
-                                key={post.id} 
-                                className="group flex flex-col bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800 hover:shadow-xl transition-all duration-300"
-                            >
-                                {/* Card Image */}
-                                <div className="h-56 overflow-hidden relative">
-                                    <img 
-                                        src={post.image} 
-                                        alt={post.title} 
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    />
-                                </div>
-
-                                {/* Card Body */}
-                                <div className="p-6 flex flex-col flex-grow">
-                                    {/* Tag */}
-                                    <span className="text-xs font-bold tracking-wider text-primary mb-3.5 block uppercase">
-                                        {post.tag}
-                                    </span>
-
-                                    {/* Title */}
-                                    <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-primary transition-colors duration-300 mb-2.5 line-clamp-2 leading-snug">
-                                        {post.title}
-                                    </h3>
-
-                                    {/* Excerpt */}
-                                    <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-6 line-clamp-3">
-                                        {post.content}
-                                    </p>
-
-                                    {/* Author Info Footer */}
-                                    <div className="flex items-center gap-3 mt-auto pt-4 border-t border-slate-50 dark:border-slate-800/60">
-                                        <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs uppercase shadow-inner">
-                                            {post.author.charAt(0)}
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-none">{post.author}</span>
-                                            <span className="text-[10px] text-slate-400 mt-1 font-medium">
-                                                {post.date} &bull; {post.readTime}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Link>
+                            <BlogCard key={post.id} post={post} />
                         ))}
                     </div>
                 )}
