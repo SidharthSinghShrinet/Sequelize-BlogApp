@@ -42,17 +42,19 @@ const HomePage = () => {
         }
     ];
 
-    // Use live database blogs if they exist, otherwise use the matching reference blogs
-    const displayBlogs = blogs.length >= 3 
-        ? blogs.slice(0, 3).map((b, i) => ({
+    // Show the most recent 3 uploaded database blogs
+    const sortedBlogs = [...blogs].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const displayBlogs = sortedBlogs.length > 0 
+        ? sortedBlogs.slice(0, 3).map((b) => ({
             id: b.id,
-            tag: i === 0 ? 'TYPESCRIPT' : i === 1 ? 'TEACHING' : 'DEV-OPS',
+            tag: b.category ? b.category.toUpperCase() : 'TECHNICAL',
             title: b.title,
-            content: b.content.replace(/<[^>]*>?/gm, '').substring(0, 80) + '...',
+            content: b.content ? b.content.replace(/<[^>]*>?/gm, '').substring(0, 90) + '...' : '',
             image: getBlogImageUrl(b.content, b.title, b.id, b.thumbnail),
-            author: b.authorDetails?.username || 'Writer',
-            date: new Date(b.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-            readTime: `${calculateReadingTime(b.content)} min read`
+            author: b.authorDetails?.username || 'Creator',
+            date: new Date(b.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+            readTime: `${calculateReadingTime(b.content || '')} min read`
         }))
         : defaultFeaturedBlogs;
 
