@@ -27,7 +27,12 @@ const error = (
   res: express.Response,
   next: express.NextFunction,
 ) => {
-  console.log("FULL ERROR:", err);
+  const statusCode = err.statusCode || 500;
+
+  // Log full error stack traces only for server-side 500 errors to keep production logs clean
+  if (statusCode >= 500) {
+    console.error("SERVER ERROR [500]:", err);
+  }
 
   if (err.name === "SequelizeValidationError") {
     return res.status(400).json({

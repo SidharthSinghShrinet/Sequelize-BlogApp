@@ -35,10 +35,11 @@ app.use(
       // Allow server-to-server / Postman (no origin header)
       if (!origin) return callback(null, true);
       // Build allowed list from FRONTEND_URL env var (supports comma-separated values)
-      const allowed = (process.env.FRONTEND_URL ?? "")
-        .split(",")
-        .map((o) => o.trim())
-        .filter(Boolean);
+      const allowed = [
+        "https://www.showoff4u.in",
+        "https://showoff4u.in",
+        ...(process.env.FRONTEND_URL ?? "").split(",").map((o) => o.trim()).filter(Boolean)
+      ];
       // Allow exact match OR any *.vercel.app OR localhost
       const ok =
         allowed.includes(origin) ||
