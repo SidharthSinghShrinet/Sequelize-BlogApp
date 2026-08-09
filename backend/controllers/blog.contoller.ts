@@ -7,6 +7,7 @@ import media from "../model/media.model";
 import ApiResponse from "../utils/ApiResponse.utils";
 import users from "../model/user.model";
 import likes from "../model/like.model";
+import cloudinary from "../config/cloudinary";
 import { uploadStream, uploadBufferToCloudinary } from "../utils/cloudinary.utils";
 import { generateSmartBlogCover, generateArtDirectorBrief } from "../utils/ai.utils";
 import { getCategoryForBlog } from "../utils/category.utils";
@@ -454,6 +455,17 @@ const getPlatformAnalytics = expressAsyncHandler(
         });
         const totalStorageSavedBytes = (totalBytesResult || 0) + (legacyCount * 260096);
 
+        // 3. Fetch real-time Cloudinary account usage
+        let cloudinaryObjects = 0;
+        let cloudinaryStorageBytes = 0;
+        try {
+            const cloudinaryUsage = await cloudinary.api.usage();
+            cloudinaryObjects = cloudinaryUsage.objects?.usage || 0;
+            cloudinaryStorageBytes = cloudinaryUsage.storage?.usage || 0;
+        } catch (err) {
+            console.error("Failed to fetch Cloudinary usage for analytics:", err);
+        }
+
         return new ApiResponse(
             200,
             true,
@@ -462,7 +474,9 @@ const getPlatformAnalytics = expressAsyncHandler(
                 totalArticles,
                 coverCount,
                 avgReadingTime,
-                totalStorageSavedBytes
+                totalStorageSavedBytes,
+                cloudinaryObjects,
+                cloudinaryStorageBytes
             }
         ).send(res);
     }

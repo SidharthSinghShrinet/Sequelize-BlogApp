@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BlogApi } from '../api/client';
 
 const PlatformAnalytics = () => {
@@ -25,6 +25,8 @@ const PlatformAnalytics = () => {
     const coverCount = analytics?.coverCount ?? 0;
     const avgReadingTime = analytics?.avgReadingTime ?? 0;
     const totalStorageSavedBytes = analytics?.totalStorageSavedBytes ?? 0;
+    const cloudinaryObjects = analytics?.cloudinaryObjects ?? 0;
+    const cloudinaryStorageBytes = analytics?.cloudinaryStorageBytes ?? 0;
 
     // Format Storage Saved dynamically
     const storageSavedKB = totalStorageSavedBytes / 1024;
@@ -32,17 +34,19 @@ const PlatformAnalytics = () => {
         ? (storageSavedKB / 1024).toFixed(1) + " MB" 
         : Math.round(storageSavedKB) + " KB";
 
+    const cloudinaryStorageMB = (cloudinaryStorageBytes / (1024 * 1024)).toFixed(1) + " MB";
+
     return (
         <section className="flex flex-col gap-8">
             <div className="flex flex-col gap-2">
                 <span className="font-mono text-[10px] font-bold text-primary dark:text-indigo-400 uppercase tracking-widest">
-                    Live Metrics // Production Database
+                    Live Metrics // Production Database & Cloudinary
                 </span>
                 <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">
                     Platform Insights
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
-                    Real-time statistics queried directly from active blog entities and tracked media structures in MySQL.
+                    Real-time statistics queried directly from active blog entities in MySQL and Cloudinary media storage APIs.
                 </p>
             </div>
 
@@ -64,15 +68,15 @@ const PlatformAnalytics = () => {
                         </p>
                     </div>
 
-                    {/* Card 2: AI Covers */}
+                    {/* Card 2: Cloudinary Assets */}
                     <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
-                        <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">AI Covers Generated</span>
+                        <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">Cloudinary Assets</span>
                         <div className="text-3xl font-extrabold text-indigo-500 dark:text-indigo-400 mt-1 flex items-baseline gap-2">
-                            {coverCount}
-                            <span className="text-xs font-medium text-slate-400">images</span>
+                            {cloudinaryObjects > 0 ? cloudinaryObjects : coverCount}
+                            <span className="text-xs font-medium text-slate-400">media objects</span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-450 text-[11px] mt-2 leading-relaxed">
-                            Blog headers automatically synthesized and linked.
+                            Active media assets delivered via Cloudinary CDN ({cloudinaryStorageMB} active storage).
                         </p>
                     </div>
 
