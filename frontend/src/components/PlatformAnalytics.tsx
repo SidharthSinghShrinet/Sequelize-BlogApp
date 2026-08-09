@@ -55,9 +55,9 @@ const PlatformAnalytics = () => {
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6">
                     {/* Card 1: Total Posts */}
-                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
+                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
                         <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">Total Articles</span>
                         <div className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1 flex items-baseline gap-2">
                             {totalArticles}
@@ -68,20 +68,32 @@ const PlatformAnalytics = () => {
                         </p>
                     </div>
 
-                    {/* Card 2: Cloudinary Assets */}
-                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
-                        <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">Cloudinary Assets</span>
+                    {/* Card 2: AI Covers Generated */}
+                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
+                        <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">AI Covers Generated</span>
                         <div className="text-3xl font-extrabold text-indigo-500 dark:text-indigo-400 mt-1 flex items-baseline gap-2">
+                            {coverCount}
+                            <span className="text-xs font-medium text-slate-400">images</span>
+                        </div>
+                        <p className="text-slate-500 dark:text-slate-450 text-[11px] mt-2 leading-relaxed">
+                            Blog headers automatically synthesized and linked.
+                        </p>
+                    </div>
+
+                    {/* Card 3: Cloudinary Assets */}
+                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
+                        <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">Cloudinary Assets</span>
+                        <div className="text-3xl font-extrabold text-sky-500 dark:text-sky-400 mt-1 flex items-baseline gap-2">
                             {cloudinaryObjects > 0 ? cloudinaryObjects : coverCount}
                             <span className="text-xs font-medium text-slate-400">media objects</span>
                         </div>
                         <p className="text-slate-500 dark:text-slate-450 text-[11px] mt-2 leading-relaxed">
-                            Active media assets delivered via Cloudinary CDN ({cloudinaryStorageMB} active storage).
+                            Active CDN media assets ({cloudinaryStorageMB} active storage).
                         </p>
                     </div>
 
-                    {/* Card 3: Avg Read Time */}
-                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
+                    {/* Card 4: Avg Read Time */}
+                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
                         <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">Average Read Time</span>
                         <div className="text-3xl font-extrabold text-slate-900 dark:text-white mt-1 flex items-baseline gap-2">
                             {avgReadingTime}
@@ -92,8 +104,8 @@ const PlatformAnalytics = () => {
                         </p>
                     </div>
 
-                    {/* Card 4: Storage Saved */}
-                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-6 flex flex-col gap-2 shadow-sm">
+                    {/* Card 5: Storage Saved */}
+                    <div className="bg-surface-container-lowest dark:bg-slate-900 border border-outline-variant/30 dark:border-slate-800 rounded-2xl p-5 flex flex-col gap-2 shadow-sm">
                         <span className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider">Cleaned Storage</span>
                         <div className="text-3xl font-extrabold text-emerald-500 dark:text-emerald-400 mt-1 flex items-baseline gap-2">
                             {storageSavedText}
