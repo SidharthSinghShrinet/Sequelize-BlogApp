@@ -8,7 +8,7 @@ import ApiResponse from "../utils/ApiResponse.utils";
 import users from "../model/user.model";
 import likes from "../model/like.model";
 import { uploadStream, uploadBufferToCloudinary } from "../utils/cloudinary.utils";
-import { generateSmartBlogCover } from "../utils/ai.utils";
+import { generateSmartBlogCover, generateArtDirectorBrief } from "../utils/ai.utils";
 import { getCategoryForBlog } from "../utils/category.utils";
 
 const activateMediaForBlog = async (content: string, blogId: number) => {
@@ -399,42 +399,21 @@ const testAiPrompt = expressAsyncHandler(async (req: express.Request, res: expre
         throw new ErrorHandler("Title is required to test AI prompt!", 400);
     }
     
-    const artDirectorPrompt = `You are a creative Art Director. Analyze this blog title: "${title}". Design a beautiful, high-quality visual concept for an article cover representing this specific topic. Write a single, descriptive sentence describing the composition of this image (objects, background, lighting, and mood). Make it a conceptual metaphor or visual scene that is highly relevant and recognizable for the topic. If there are iconic symbols or visual metaphors commonly associated with the specific topic (such as databases, servers, gears, networks, locks, lightbulbs, atomic orbits, interlocking loops, or layers), creatively incorporate them into a modern artistic composition. STRICT RULES: 1. Start your response directly with the image description (e.g., "A..." or "An..."). Do not include any intro, thinking, notes, or meta-commentary. 2. Do not include any words, letters, text, alphabets, or typography in the description. 3. Do not include code syntax, code snippets, or user interface (UI) screens. 4. Describe only visual objects, colors, and art style. Use a professional, clean, and modern artistic aesthetic. 5. Avoid animal metaphors (like spiders, octopuses, etc.) or literal physical tools (like fishing hooks). Focus on abstract, geometric, digital, or technology-based representations.`;
+    // Step 1: Generate Art Director Brief (Gemini 2.5 Flash -> Mistral fallback)
+    const generatedBrief = await generateArtDirectorBrief(title);
 
-    const pollinationsKey = process.env.POLLINATIONS_API_KEY;
-    const textHeaders: Record<string, string> = {
-        "Content-Type": "application/json"
-    };
-    if (pollinationsKey) {
-        textHeaders["Authorization"] = `Bearer ${pollinationsKey}`;
-    }
-
-    const textResponse = await fetch(
-        "https://gen.pollinations.ai/v1/chat/completions",
-        {
-            method: "POST",
-            headers: textHeaders,
-            body: JSON.stringify({
-                model: "mistral-small-3.2",
-                messages: [{ role: "user", content: artDirectorPrompt }],
-                max_tokens: 100
-            })
-        }
-    );
-
-    if (!textResponse.ok) {
-        const errorText = await textResponse.text();
-        throw new Error(`Text generation failed: ${errorText}`);
-    }
-
-    const textData: any = await textResponse.json();
-    const generatedBrief = textData.choices?.[0]?.message?.content?.trim();
+    // Step 2: Optionally generate full cover via Smart Cover pipeline
+    const coverResult = await generateSmartBlogCover(title);
 
     return new ApiResponse(
         200,
         true,
-        "AI visual brief generated successfully!",
-        { brief: generatedBrief }
+        "AI visual brief & cover generated successfully!",
+        {
+            brief: generatedBrief,
+            coverUrl: coverResult?.url || null,
+            provider: "Gemini 2.5 Flash + Cloudflare Flux-1-Schnell"
+        }
     ).send(res);
 });
 

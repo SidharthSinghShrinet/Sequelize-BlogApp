@@ -118,7 +118,7 @@ async function tryPexels(searchTerm: string): Promise<Buffer | null> {
  * Primary: Gemini 2.5 Flash API
  * Fallback: Mistral (via Pollinations API)
  */
-async function generateArtDirectorBrief(blogTitle: string): Promise<string> {
+export async function generateArtDirectorBrief(blogTitle: string): Promise<string> {
     const artDirectorPrompt = `You are a creative Art Director. Analyze this blog title: "${blogTitle}". Design a beautiful, high-quality visual concept for an article cover representing this specific topic. Write a single, descriptive sentence describing the composition of this image (objects, background, lighting, and mood). Make it a conceptual metaphor or visual scene that is highly relevant and recognizable for the topic. If there are iconic symbols or visual metaphors commonly associated with the specific topic (such as databases, servers, gears, networks, locks, lightbulbs, atomic orbits, interlocking loops, or layers), creatively incorporate them into a modern artistic composition. STRICT RULES: 1. Start your response directly with the image description (e.g., "A..." or "An..."). Do not include any intro, thinking, notes, or meta-commentary. 2. Do not include any words, letters, text, alphabets, or typography in the description. 3. Do not include code syntax, code snippets, or user interface (UI) screens. 4. Describe only visual objects, colors, and art style. Use a professional, clean, and modern artistic aesthetic. 5. Avoid animal metaphors (like spiders, octopuses, etc.) or literal physical tools (like fishing hooks). Focus on abstract, geometric, digital, or technology-based representations.`;
 
     // Tier 3A: Gemini 2.5 Flash

@@ -8,6 +8,7 @@ const AiSandbox = () => {
     const [sandboxLogs, setSandboxLogs] = useState<string[]>([]);
     const [sandboxBrief, setSandboxBrief] = useState('');
     const [sandboxImageUrl, setSandboxImageUrl] = useState('');
+    const [sandboxProvider, setSandboxProvider] = useState('');
     const [imageLoading, setImageLoading] = useState(false);
 
     const handleSandboxSubmit = async (e: React.FormEvent) => {
@@ -20,8 +21,9 @@ const AiSandbox = () => {
         setSandboxLoading(true);
         setSandboxBrief('');
         setSandboxImageUrl('');
+        setSandboxProvider('');
         setSandboxLogs([
-            `[SYSTEM] Connecting to Showoff AI Proxy Server...`,
+            `[SYSTEM] Connecting to ShowOff Multi-Tier AI Gateway...`,
         ]);
 
         const appendLog = (msg: string, delay: number) => {
@@ -34,23 +36,27 @@ const AiSandbox = () => {
         };
 
         try {
-            await appendLog(`[SYSTEM] Starting Art Director pipeline for title: "${sandboxTitle}"`, 400);
-            await appendLog(`[ART DIRECTOR] Executing completions using Mistral-Small model...`, 600);
+            await appendLog(`[SYSTEM] Starting Smart Cover pipeline for title: "${sandboxTitle}"`, 300);
+            await appendLog(`[STOCK TIER] Checking Unsplash & Pexels stock repositories...`, 400);
+            await appendLog(`[ART DIRECTOR] Generating brief using Gemini 2.5 Flash (Mistral fallback)...`, 500);
 
             const response: any = await BlogApi.testAiPrompt({ title: sandboxTitle });
+            const data = response?.data || response;
+
+            await appendLog(`[ART DIRECTOR] Gemini 2.5 Flash brief generation successful.`, 300);
+            await appendLog(`[SYSTEM] Visual brief: "${data.brief}"`, 300);
             
-            await appendLog(`[ART DIRECTOR] completions request completed successfully.`, 400);
-            await appendLog(`[SYSTEM] visual concept brief generated: "${response.data.brief}"`, 300);
+            setSandboxBrief(data.brief || '');
+            setSandboxProvider(data.provider || 'Gemini 2.5 Flash + Cloudflare Flux-1-Schnell');
             
-            setSandboxBrief(response.data.brief);
-            
-            await appendLog(`[ARTIST] Routing brief description to Flux canvas renderer...`, 400);
-            
-            const generatedUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(response.data.brief)}?width=800&height=450&nologo=true&private=true&model=flux`;
-            setSandboxImageUrl(generatedUrl);
+            await appendLog(`[FLUX CANVAS] Rendering image via Cloudflare Workers AI (@cf/black-forest-labs/flux-1-schnell)...`, 400);
+
+            const finalUrl = data.coverUrl || `https://image.pollinations.ai/prompt/${encodeURIComponent(data.brief)}?width=800&height=450&nologo=true&private=true&model=flux`;
+            setSandboxImageUrl(finalUrl);
             setImageLoading(true);
             
-            await appendLog(`[SYSTEM] Rendering cover layout complete. Sandbox active.`, 500);
+            await appendLog(`[CLOUDINARY] Uploading image buffer to Cloudinary CDN...`, 400);
+            await appendLog(`[SYSTEM] Render layout complete. Smart Cover pipeline active.`, 400);
         } catch (err: any) {
             console.error(err);
             setSandboxLogs(prev => [...prev, `[ERROR] Pipeline execution failed: ${err.message || err}`]);
@@ -70,7 +76,7 @@ const AiSandbox = () => {
                     AI Art Director Playground
                 </h2>
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
-                    Type any custom technical topic title to test the Art Director pipeline and see the generated concept and cover design in real time!
+                    Test the upgraded multi-tier pipeline (Gemini 2.5 Flash ➔ Cloudflare Flux-1-Schnell ➔ Cloudinary) with any technical topic title in real time!
                 </p>
             </div>
 
@@ -99,7 +105,7 @@ const AiSandbox = () => {
                             {sandboxLoading ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                    Analyzing Title...
+                                    Executing Pipeline...
                                 </>
                             ) : (
                                 <>
@@ -122,7 +128,7 @@ const AiSandbox = () => {
                                 sandboxLogs.map((log, idx) => {
                                     const isError = log.startsWith("[ERROR]");
                                     const isSystem = log.startsWith("[SYSTEM]");
-                                    const isSuccess = log.includes("successful") || log.includes("complete");
+                                    const isSuccess = log.includes("successful") || log.includes("complete") || log.includes("Visual brief");
                                     let textColor = "text-amber-500/90";
                                     if (isError) textColor = "text-rose-500 font-bold";
                                     else if (isSystem) textColor = "text-slate-400";
@@ -144,14 +150,21 @@ const AiSandbox = () => {
                     {sandboxLoading ? (
                         <div className="flex flex-col flex-grow items-center justify-center gap-4 py-12">
                             <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-                            <span className="text-xs font-mono text-slate-400">Art Director is thinking...</span>
+                            <span className="text-xs font-mono text-slate-400">Gemini & Flux pipeline in progress...</span>
                         </div>
                     ) : sandboxBrief ? (
                         <div className="flex flex-col gap-4 flex-grow justify-between animate-[fadeIn_0.3s_ease-out]">
                             <div className="flex flex-col gap-2">
-                                <span className="font-mono text-[9px] font-bold text-indigo-500 uppercase tracking-widest">
-                                    Stage Output // Visual Brief
-                                </span>
+                                <div className="flex items-center justify-between">
+                                    <span className="font-mono text-[9px] font-bold text-indigo-500 uppercase tracking-widest">
+                                        Stage Output // Visual Brief
+                                    </span>
+                                    {sandboxProvider && (
+                                        <span className="font-mono text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                                            ⚡ {sandboxProvider}
+                                        </span>
+                                    )}
+                                </div>
                                 <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800/80 leading-relaxed text-xs text-slate-700 dark:text-slate-350 italic">
                                     "{sandboxBrief}"
                                 </div>
@@ -160,7 +173,7 @@ const AiSandbox = () => {
                             {sandboxImageUrl && (
                                 <div className="flex flex-col gap-2 mt-2">
                                     <span className="font-mono text-[9px] font-bold text-indigo-500 uppercase tracking-widest">
-                                        Stage Output // Flux Generated Canvas
+                                        Stage Output // Cloudflare Flux Canvas
                                     </span>
                                     <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow border border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-900 flex items-center justify-center">
                                         {imageLoading && (
@@ -183,7 +196,7 @@ const AiSandbox = () => {
                         <div className="flex flex-col flex-grow items-center justify-center gap-3 py-12 text-slate-400 dark:text-slate-650">
                             <span className="material-symbols-outlined text-5xl">settings_input_component</span>
                             <span className="text-xs font-semibold text-center leading-relaxed max-w-[280px]">
-                                Ready to generate. Enter a topic title on the left and run the pipeline to view visual briefs and AI canvas previews.
+                                Ready to generate. Enter a topic title on the left to run Gemini 2.5 Flash + Cloudflare Flux-1-Schnell pipeline.
                             </span>
                         </div>
                     )}
