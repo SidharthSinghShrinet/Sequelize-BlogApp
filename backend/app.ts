@@ -14,6 +14,8 @@ import cookieParser from "cookie-parser";
 import "./model/associations.ts";
 import { globalLimiter } from "./middleware/rateLimiter.middleware.ts";
 
+import sequelize from "./config/db.ts";
+
 const app = express();
 
 if (process.env.NODE_ENV === "production") {
@@ -61,9 +63,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // Universal Health Check Endpoints (Placed BEFORE rate limiting so health checks never return 429)
-const healthHandler = (_req: express.Request, res: express.Response) => {
+// Executes a lightweight SELECT 1 query against MySQL to keep Aiven DB active & prevent power-off
+const healthHandler = async (_req: express.Request, res: express.Response) => {
+  let dbStatus = "connected";
+  try {
+    await sequelize.query("SELECT 1");
+  } catch (err: any) {
+    dbStatus = "disconnected";
+    console.error("Health check DB ping failed:", err.message || err);
+  }
+
   res.status(200).json({
     status: "ok",
+    database: dbStatus,
     message: "Server is healthy and active",
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
