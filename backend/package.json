@@ -8,7 +8,8 @@
     "dev": "bun --watch server.ts",
     "seed": "bun run scripts/seedBlogs.ts",
     "seed:parallel": "bun run scripts/seedBlogsMultiLLM.ts",
-    "seed:javajs": "bun run scripts/seedJavaJsBlogs.ts"
+    "seed:javajs": "bun run scripts/seedJavaJsBlogs.ts",
+    "enrich": "bun run scripts/enrichBlogsUnique.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
