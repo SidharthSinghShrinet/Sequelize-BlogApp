@@ -5,7 +5,9 @@
   "private": true,
   "scripts": {
     "start": "bun run server.ts",
-    "dev": "bun --watch server.ts"
+    "dev": "bun --watch server.ts",
+    "seed": "bun run scripts/seedBlogs.ts",
+    "seed:parallel": "bun run scripts/seedBlogsMultiLLM.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",
