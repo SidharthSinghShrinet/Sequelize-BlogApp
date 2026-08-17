@@ -15,6 +15,8 @@ import TiptapLink from '@tiptap/extension-link';
 import TiptapImage from '@tiptap/extension-image';
 import Placeholder from '@tiptap/extension-placeholder';
 
+import { marked } from 'marked';
+
 const toolTitles: Record<string, string> = {
     'format_bold': 'Bold',
     'format_italic': 'Italic',
@@ -24,7 +26,8 @@ const toolTitles: Record<string, string> = {
     'image': 'Insert Web Image URL',
     'upload': 'Upload Local Image',
     'code': 'Inline Code',
-    'terminal': 'Code Block (Multi-line)'
+    'terminal': 'Code Block (Multi-line)',
+    'integration_instructions': 'Import README.md / Markdown File'
 };
 
 const blogSchema = z.object({
@@ -90,6 +93,43 @@ const CreateBlogPage = () => {
         editorProps: {
             attributes: {
                 class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-[400px]',
+            },
+            handlePaste: (_view, event) => {
+                const text = event.clipboardData?.getData('text/plain');
+                if (!text) return false;
+
+                const markdownPatterns = [
+                    /^#{1,6}\s+/m,             // Headings (#, ##, ###)
+                    /```[\s\S]*?```/,          // Code blocks
+                    /^\s*[\*\-\+]\s+/m,        // Bullet lists
+                    /^\s*\d+\.\s+/m,           // Numbered lists
+                    /\[.+?\]\(.+?\)/,          // Links [text](url)
+                    /^\s*>\s+/m,               // Blockquotes
+                    /\*\*.+?\*\*/,             // Bold **text**
+                    /`.+?`/                    // Inline code
+                ];
+
+                const isMarkdown = markdownPatterns.some(pattern => pattern.test(text));
+
+                if (isMarkdown) {
+                    try {
+                        const parsed = marked.parse(text);
+                        if (typeof parsed === 'string') {
+                            editor?.commands.insertContent(parsed);
+                            toast.success('Pasted & formatted Markdown automatically!');
+                            return true;
+                        } else if (parsed && typeof (parsed as any).then === 'function') {
+                            (parsed as any).then((parsedHtml: string) => {
+                                editor?.commands.insertContent(parsedHtml);
+                                toast.success('Pasted & formatted Markdown automatically!');
+                            });
+                            return true;
+                        }
+                    } catch (err) {
+                        console.error('Failed to parse pasted markdown:', err);
+                    }
+                }
+                return false;
             },
         },
         onUpdate: ({ editor }) => {
@@ -200,6 +240,32 @@ const CreateBlogPage = () => {
                             console.log(error);
                             toast.error(error?.message || "Failed to Upload Image!", { id: loadingToast });
                         }
+                    }
+                };
+                input.click();
+                break;
+            }
+            case 'integration_instructions': {
+                const input = document.createElement("input");
+                input.type = 'file';
+                input.accept = '.md,.markdown,.txt';
+                input.onchange = async (e) => {
+                    const file = (e.target as HTMLInputElement).files?.[0];
+                    if (file) {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                            const markdownText = event.target?.result as string;
+                            if (markdownText) {
+                                try {
+                                    const parsed = await marked.parse(markdownText);
+                                    editor.commands.setContent(parsed);
+                                    toast.success(`Imported README/Markdown: "${file.name}"!`);
+                                } catch (err) {
+                                    toast.error('Failed to parse Markdown file.');
+                                }
+                            }
+                        };
+                        reader.readAsText(file);
                     }
                 };
                 input.click();
@@ -355,7 +421,7 @@ const CreateBlogPage = () => {
 
                     <div className="flex flex-col rounded-lg border border-outline-variant/30 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden">
                         <div className="flex items-center gap-1 p-2 bg-surface-container-high dark:bg-slate-900 border-b dark:border-slate-800 overflow-x-auto no-scrollbar max-w-full">
-                            {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'code', 'terminal'].map(tool => {
+                            {['format_bold', 'format_italic', 'format_h1', 'format_h2', 'link', 'image', 'upload', 'integration_instructions', 'code', 'terminal'].map(tool => {
                                 const active = isFormatActive(tool);
                                 return (
                                     <button
