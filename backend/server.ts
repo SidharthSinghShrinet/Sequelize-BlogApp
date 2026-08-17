@@ -95,6 +95,16 @@ async function cleanupDuplicateIndexes() {
   }
 }
 
+async function upgradeTextColumnsToLongText() {
+  try {
+    await sequelize.query("ALTER TABLE blogs MODIFY content LONGTEXT");
+    await sequelize.query("ALTER TABLE projects MODIFY description LONGTEXT");
+    console.log("✅ Database text columns upgraded to LONGTEXT successfully.");
+  } catch (err: any) {
+    console.log("ℹ️ Skipping text column upgrade (already upgraded or table missing):", err.message);
+  }
+}
+
 async function startConnection() {
   try {
     // 1. Authenticate
@@ -104,6 +114,8 @@ async function startConnection() {
     await cleanupDuplicateIndexes();
     // 1.5. Clean up duplicate usernames before altering constraints
     await deduplicateUsernames();
+    // 1.6. Ensure database text columns support megabyte-scale content
+    await upgradeTextColumnsToLongText();
     // 2. Sync with database
     // Note: Only uncomment the line below when there is a column/model modification.
     // Restart the server to sync the changes, then re-comment it and use the default sync.

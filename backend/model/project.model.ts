@@ -18,7 +18,7 @@ const projects = sequelize.define(
             allowNull: false,
         },
         description: {
-            type: DataTypes.TEXT,
+            type: DataTypes.TEXT("long"),
             allowNull: false,
         },
         techStack: {

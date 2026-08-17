@@ -9,7 +9,15 @@
     "seed": "bun run scripts/seedBlogs.ts",
     "seed:parallel": "bun run scripts/seedBlogsMultiLLM.ts",
     "seed:javajs": "bun run scripts/seedJavaJsBlogs.ts",
-    "enrich": "bun run scripts/enrichBlogsUnique.ts"
+    "enrich": "bun run scripts/enrichBlogsUnique.ts",
+    "enrich:filter": "bun run scripts/enrichBlogsMultiLLMWithFilter.ts",
+    "seed:initial100": "bun run scripts/seed100InitialSuperBlogs.ts",
+    "seed:initial100unique": "bun run scripts/seed100SuperUnique5000WordBlogs.ts",
+    "seed:javajspage12": "bun run scripts/seedJavaJsPage1AndPage2.ts",
+    "seed:javajs14k": "bun run scripts/seedJavaJs14000WordMasterclass.ts",
+    "seed:mindblowing": "bun run scripts/seedJavaJsMindBlowing14000.ts",
+    "seed:human": "bun run scripts/seedJavaJsTrulyHuman14k.ts",
+    "enrich:groq": "bun run scripts/enrichWithGroqLLM.ts"
   },
   "devDependencies": {
     "@types/bun": "^1.3.14",

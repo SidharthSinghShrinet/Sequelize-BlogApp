@@ -59,8 +59,8 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
 
 // Universal Health Check Endpoints (Placed BEFORE rate limiting so health checks never return 429)
 // Executes a lightweight SELECT 1 query against MySQL to keep Aiven DB active & prevent power-off
