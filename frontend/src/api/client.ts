@@ -6,8 +6,16 @@ const getApiBaseUrl = () => {
     if (envUrl) {
         return envUrl;
     }
-    const host = typeof window !== 'undefined' && window.location.hostname ? window.location.hostname : 'localhost';
-    return `http://${host}:9000/api/v1`;
+    if (typeof window !== 'undefined') {
+        const isHttps = window.location.protocol === 'https:';
+        const host = window.location.hostname;
+        if (host === 'localhost' || host === '127.0.0.1') {
+            return `http://${host}:9000/api/v1`;
+        }
+        // Fallback for production deployment
+        return isHttps ? `https://api.showoff4u.in/api/v1` : `http://${host}:9000/api/v1`;
+    }
+    return 'https://api.showoff4u.in/api/v1';
 };
 
 export const API_BASE_URL = getApiBaseUrl();
@@ -70,6 +78,8 @@ apiClient.interceptors.response.use(
 
             if (config._retryCount <= MAX_RETRIES) {
                 const backoffMs = Math.min(1000 * Math.pow(2, config._retryCount - 1) + Math.random() * 250, 4000);
+                console.warn(`[Axios Interceptor] Request to ${config.url} failed (${error.code || error.message}). Attempt ${config._retryCount}/${MAX_RETRIES}. Retrying in ${Math.round(backoffMs)}ms...`);
+                
                 toast.loading(`Connection issue detected. Retrying request (${config._retryCount}/${MAX_RETRIES})...`, {
                     id: `retry-${config.url || 'req'}`,
                     duration: backoffMs + 800,

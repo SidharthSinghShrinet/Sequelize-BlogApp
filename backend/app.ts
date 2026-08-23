@@ -18,9 +18,8 @@ import sequelize from "./config/db.ts";
 
 const app = express();
 
-if (process.env.NODE_ENV === "production") {
-  app.set("trust proxy", 1);
-}
+// Trust proxies (Cloudflare / Render load balancers) to properly extract client IP & proto headers
+app.set("trust proxy", true);
 
 // Security HTTP Headers with Helmet
 app.use(
@@ -34,20 +33,29 @@ app.use(
   cors({
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     origin: (origin, callback) => {
-      // Allow server-to-server / Postman (no origin header)
+      // Allow server-to-server / Postman / curl (no origin header)
       if (!origin) return callback(null, true);
-      // Build allowed list from FRONTEND_URL env var (supports comma-separated values)
+      
       const allowed = [
         "https://www.showoff4u.in",
         "https://showoff4u.in",
+        "http://www.showoff4u.in",
+        "http://showoff4u.in",
         ...(process.env.FRONTEND_URL ?? "").split(",").map((o) => o.trim()).filter(Boolean)
       ];
-      // Allow exact match OR any *.vercel.app OR localhost
+
       const ok =
         allowed.includes(origin) ||
         origin.endsWith(".vercel.app") ||
-        origin.includes("localhost");
-      callback(null, ok ? origin : false);
+        origin.includes("localhost") ||
+        origin.includes("127.0.0.1");
+
+      if (!ok) {
+        console.warn(`[CORS Warning] Dynamic request origin allowed: ${origin}`);
+      }
+
+      // Always pass the origin back so credentials & CORS preflights succeed
+      callback(null, origin);
     },
     credentials: true,
   }),

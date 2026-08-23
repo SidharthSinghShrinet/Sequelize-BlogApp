@@ -126,10 +126,15 @@ async function startConnection() {
     await backfillCategories();
     // 4. Start Server
     const PORT = Number(process.env.PORT) || 9000;
-    app.listen(PORT, "0.0.0.0", () => {
+    const server = app.listen(PORT, "0.0.0.0", () => {
       console.log("✅ Server is running on 0.0.0.0:" + PORT);
       initCronJobs();
     });
+
+    // Cloudflare keep-alive timeout is 60s. Node default is 5s, which causes Cloudflare to reuse closed sockets (ERR_CONNECTION_CLOSED).
+    // Setting Node's keepAliveTimeout higher (65s) and headersTimeout higher (66s) eliminates premature TCP connection closes.
+    server.keepAliveTimeout = 65000;
+    server.headersTimeout = 66000;
   } catch (e) {
     console.error("Error occurred while starting the connection:", e);
     process.exit(1);
