@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { toast } from 'react-hot-toast';
 
 const getApiBaseUrl = () => {
     const envUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL;
@@ -23,6 +24,13 @@ export class ApiError extends Error {
     }
 }
 
+interface CustomAxiosConfig extends InternalAxiosRequestConfig {
+    _retryCount?: number;
+    retry?: boolean;
+}
+
+const MAX_RETRIES = 3;
+
 const apiClient = axios.create({
     baseURL: API_BASE_URL,
     withCredentials: true,
@@ -33,7 +41,8 @@ const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
     (response) => response.data,
-    (error: AxiosError) => {
+    async (error: AxiosError) => {
+        const config = error.config as CustomAxiosConfig | undefined;
         let status = 500;
         let message = 'An error occurred';
         let data: any = null;
@@ -50,6 +59,25 @@ apiClient.interceptors.response.use(
             message = 'No response from server';
         } else {
             message = error.message;
+        }
+
+        // Retry logic for transient network errors, TLS handshakes, or 502/503/504 gateway glitches
+        const isTransientError = !error.response || [502, 503, 504].includes(status);
+        const isSafeOrExplicitRetry = config && (config.method?.toLowerCase() === 'get' || config.retry === true);
+
+        if (config && isTransientError && isSafeOrExplicitRetry) {
+            config._retryCount = (config._retryCount || 0) + 1;
+
+            if (config._retryCount <= MAX_RETRIES) {
+                const backoffMs = Math.min(1000 * Math.pow(2, config._retryCount - 1) + Math.random() * 250, 4000);
+                toast.loading(`Connection issue detected. Retrying request (${config._retryCount}/${MAX_RETRIES})...`, {
+                    id: `retry-${config.url || 'req'}`,
+                    duration: backoffMs + 800,
+                });
+
+                await new Promise((resolve) => setTimeout(resolve, backoffMs));
+                return apiClient(config);
+            }
         }
 
         throw new ApiError(status, message, data);
