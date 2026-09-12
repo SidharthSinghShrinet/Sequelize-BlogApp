@@ -66,6 +66,8 @@ const registerUser = expressAsyncHandler(
 
     const userResponse = newUser.toJSON();
     delete userResponse.password;
+    delete userResponse.resetPasswordToken;
+    delete userResponse.resetPasswordTokenExpiry;
     new ApiResponse(201, true, "User created successfully", userResponse).send(res);
   },
 );
@@ -80,7 +82,7 @@ const loginUser = expressAsyncHandler(
         400,
       );
     }
-    const existingUser = await userModel.findOne({
+    const existingUser = await userModel.unscoped().findOne({
       where: {
         email,
       },
@@ -94,6 +96,9 @@ const loginUser = expressAsyncHandler(
     );
     if (!isMatched) {
       throw new ErrorHandler("Invalid email or password", 400);
+    }
+    if (!existingUser.getDataValue("isActive")) {
+      throw new ErrorHandler("This account has been deactivated", 403);
     }
     const token = await generateToken(existingUser.getDataValue("id"));
     if (!token) {
@@ -133,6 +138,8 @@ const getMe = expressAsyncHandler(
     const userResponse = req.user ? req.user.toJSON() : null;
     if (userResponse) {
       delete userResponse.password;
+      delete userResponse.resetPasswordToken;
+      delete userResponse.resetPasswordTokenExpiry;
     }
     new ApiResponse(200, true, "User profile retrieved successfully", userResponse).send(res);
   }
@@ -188,9 +195,11 @@ const updateMe = expressAsyncHandler(
 
     await user.save();
 
-    // Return updated user (excluding sensitive fields like password)
+    // Return updated user (excluding sensitive fields like password and reset tokens)
     const responseUser = user.toJSON();
     delete responseUser.password;
+    delete responseUser.resetPasswordToken;
+    delete responseUser.resetPasswordTokenExpiry;
 
     new ApiResponse(200, true, "User profile updated successfully", responseUser).send(res);
   }
@@ -300,7 +309,7 @@ const resetPassword = expressAsyncHandler(async (req: express.Request, res: expr
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
   // Query user where token matches and expiry is in the future
-  const user = await userModel.findOne({
+  const user = await userModel.unscoped().findOne({
     where: {
       resetPasswordToken: hashedToken,
       resetPasswordTokenExpiry: {

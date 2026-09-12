@@ -48,6 +48,29 @@ const users = sequelize.define("users", {
     type: DataTypes.DATE,
     allowNull: true,
   }
+}, {
+  defaultScope: {
+    attributes: {
+      exclude: ["password", "resetPasswordToken", "resetPasswordTokenExpiry"],
+    },
+  },
+  scopes: {
+    withPassword: {
+      attributes: {
+        include: ["password"],
+      },
+    },
+    withResetToken: {
+      attributes: {
+        include: ["resetPasswordToken", "resetPasswordTokenExpiry"],
+      },
+    },
+    withAllSensitive: {
+      attributes: {
+        include: ["password", "resetPasswordToken", "resetPasswordTokenExpiry"],
+      },
+    },
+  },
 });
 
 // Password hashing (with in built Bunjs) before saving the user to the database

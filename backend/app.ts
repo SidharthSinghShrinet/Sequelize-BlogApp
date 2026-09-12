@@ -28,6 +28,15 @@ app.use(
   })
 );
 
+// Permissions-Policy header to restrict access to sensitive browser features & hardware APIs
+app.use((_req, res, next) => {
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=(), accelerometer=(), gyroscope=(), magnetometer=(), display-capture=()"
+  );
+  next();
+});
+
 // CORS
 app.use(
   cors({
